@@ -57,6 +57,7 @@ tailwind.config = {
         "tertiary-fixed": "#facc15",
         "tertiary-fixed-dim": "#eab308",
         "error": "#ffb4ab",
+        "success": "#4ade80",
         "inverse-on-surface": "#303030",
         "on-surface-variant": "#c5c9ac",
         "primary": "#ffffff"
@@ -449,10 +450,20 @@ const MOCK_CLIENTS = [
 ];
 
 // ====================================================================
-// LOCAL STORAGE LAYER
+// DATA LAYER (server-first, localStorage fallback)
 // ====================================================================
+let serverOnline = false;
+
 function getPreviewData(key) { return JSON.parse(localStorage.getItem('preview_' + key) || 'null'); }
 function setPreviewData(key, data) { localStorage.setItem('preview_' + key, JSON.stringify(data)); }
+
+function initLocalData() {
+  if (!getPreviewData('exercises')) setPreviewData('exercises', MOCK_EXERCISES);
+  if (!getPreviewData('routines')) setPreviewData('routines', MOCK_ROUTINES);
+  if (!getPreviewData('clients')) setPreviewData('clients', MOCK_CLIENTS);
+  if (!getPreviewData('weekly')) setPreviewData('weekly', JSON.parse(JSON.stringify(MOCK_WEEKLY)));
+}
+initLocalData();
 
 // Sidebar toggle for mobile
 function toggleSidebar() {
@@ -476,58 +487,123 @@ function closeSidebar() {
   overlay.style.display = 'none';
   document.body.style.overflow = '';
 }
-// Close sidebar on nav link click in mobile
 document.addEventListener('click', function(e) {
   const link = e.target.closest('#sidebar a');
   if (link && window.innerWidth < 768) closeSidebar();
 });
 
-// Initialize demo data on first load
-if (!getPreviewData('exercises')) setPreviewData('exercises', MOCK_EXERCISES);
-if (!getPreviewData('routines')) setPreviewData('routines', MOCK_ROUTINES);
-if (!getPreviewData('clients')) setPreviewData('clients', MOCK_CLIENTS);
-if (!getPreviewData('weekly')) setPreviewData('weekly', JSON.parse(JSON.stringify(MOCK_WEEKLY)));
+async function serverFetch(url, opts) {
+  const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  if (!res.ok) { let msg; try { const e = await res.json(); msg = e.error; } catch { msg = res.statusText; } throw new Error(msg); }
+  return res.json();
+}
+
+async function autoSync() {
+  if (!serverOnline) return;
+  try {
+    await fetch('/api/backup/create', { method: 'POST' });
+    showToast('Sincronización exitosa', 'cloud_sync', 'text-success');
+  } catch {
+    // silent
+  }
+}
 
 const API = {
-  request: async () => { throw new Error('Requiere servidor local (node server.js)'); },
+  request: async (url, opts) => serverFetch(url, opts),
   exercises: {
-    all: () => getPreviewData('exercises') || [],
-    get: (id) => (getPreviewData('exercises') || []).find(e => e.id === id),
-    add: async (d) => { const list = getPreviewData('exercises'); list.push(d); setPreviewData('exercises', list); return d; },
-    update: async (id, d) => { const list = getPreviewData('exercises'); const idx = list.findIndex(e => e.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, image_url: d.imageUrl, video_url: d.videoUrl, updated_at: new Date().toISOString()}; setPreviewData('exercises', list); return list[idx]; } return d; },
-    delete: async (id) => { const list = getPreviewData('exercises'); setPreviewData('exercises', list.filter(e => e.id !== id)); return { success: true }; }
+    all: async () => {
+      try { const d = await serverFetch('/api/exercises'); setPreviewData('exercises', d); serverOnline = true; return d; }
+      catch { return getPreviewData('exercises') || []; }
+    },
+    get: async (id) => {
+      try { const d = await serverFetch(`/api/exercises/${id}`); serverOnline = true; return d; }
+      catch { return (getPreviewData('exercises') || []).find(e => e.id === id); }
+    },
+    add: async (d) => {
+      try { const r = await serverFetch('/api/exercises', { method: 'POST', body: JSON.stringify(d) }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('exercises'); list.push(d); setPreviewData('exercises', list); showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return d; }
+    },
+    update: async (id, d) => {
+      try { const r = await serverFetch(`/api/exercises/${id}`, { method: 'PUT', body: JSON.stringify(d) }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('exercises'); const idx = list.findIndex(e => e.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, image_url: d.imageUrl, video_url: d.videoUrl, updated_at: new Date().toISOString()}; setPreviewData('exercises', list); } showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return list[idx] || d; }
+    },
+    delete: async (id) => {
+      try { const r = await serverFetch(`/api/exercises/${id}`, { method: 'DELETE' }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('exercises'); setPreviewData('exercises', list.filter(e => e.id !== id)); showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return { success: true }; }
+    }
   },
   routines: {
-    all: () => getPreviewData('routines') || [],
-    get: (id) => (getPreviewData('routines') || []).find(r => r.id === id),
-    add: async (d) => { const list = getPreviewData('routines'); list.push(d); setPreviewData('routines', list); return d; },
-    update: async (id, d) => { const list = getPreviewData('routines'); const idx = list.findIndex(r => r.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('routines', list); return list[idx]; } return d; },
-    delete: async (id) => { const list = getPreviewData('routines'); setPreviewData('routines', list.filter(r => r.id !== id)); return { success: true }; }
+    all: async () => {
+      try { const d = await serverFetch('/api/routines'); setPreviewData('routines', d); serverOnline = true; return d; }
+      catch { return getPreviewData('routines') || []; }
+    },
+    get: async (id) => {
+      try { const d = await serverFetch(`/api/routines/${id}`); serverOnline = true; return d; }
+      catch { return (getPreviewData('routines') || []).find(r => r.id === id); }
+    },
+    add: async (d) => {
+      try { const r = await serverFetch('/api/routines', { method: 'POST', body: JSON.stringify(d) }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('routines'); list.push(d); setPreviewData('routines', list); showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return d; }
+    },
+    update: async (id, d) => {
+      try { const r = await serverFetch(`/api/routines/${id}`, { method: 'PUT', body: JSON.stringify(d) }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('routines'); const idx = list.findIndex(r => r.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('routines', list); } showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return list[idx] || d; }
+    },
+    delete: async (id) => {
+      try { const r = await serverFetch(`/api/routines/${id}`, { method: 'DELETE' }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('routines'); setPreviewData('routines', list.filter(r => r.id !== id)); showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return { success: true }; }
+    }
   },
   clients: {
-    all: () => getPreviewData('clients') || [],
-    get: (id) => (getPreviewData('clients') || []).find(c => c.id === id),
-    add: async (d) => { const list = getPreviewData('clients'); list.push(d); setPreviewData('clients', list); return d; },
-    update: async (id, d) => { const list = getPreviewData('clients'); const idx = list.findIndex(c => c.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('clients', list); return list[idx]; } return d; },
-    delete: async (id) => { const list = getPreviewData('clients'); setPreviewData('clients', list.filter(c => c.id !== id)); return { success: true }; },
-    assignRoutine: async (id, routineId) => { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = [...(c.assignedRoutines||[]), routineId]; setPreviewData('clients', list); } return c; },
-    unassignRoutine: async (id, routineId) => { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = (c.assignedRoutines||[]).filter(r => r !== routineId); setPreviewData('clients', list); } return c; },
-    regeneratePassword: async (id) => { const pwd = generatePassword(); const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.password = pwd; setPreviewData('clients', list); } return { password: pwd }; },
-    verifyPassword: async (id, password) => { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); return { success: c && c.password === password, client: c }; }
+    all: async () => {
+      try { const d = await serverFetch('/api/clients'); setPreviewData('clients', d); serverOnline = true; return d; }
+      catch { return getPreviewData('clients') || []; }
+    },
+    get: async (id) => {
+      try { const d = await serverFetch(`/api/clients/${id}`); serverOnline = true; return d; }
+      catch { return (getPreviewData('clients') || []).find(c => c.id === id); }
+    },
+    add: async (d) => {
+      try { const r = await serverFetch('/api/clients', { method: 'POST', body: JSON.stringify(d) }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('clients'); list.push(d); setPreviewData('clients', list); showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return d; }
+    },
+    update: async (id, d) => {
+      try { const r = await serverFetch(`/api/clients/${id}`, { method: 'PUT', body: JSON.stringify(d) }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('clients'); const idx = list.findIndex(c => c.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('clients', list); } showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return list[idx] || d; }
+    },
+    delete: async (id) => {
+      try { const r = await serverFetch(`/api/clients/${id}`, { method: 'DELETE' }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('clients'); setPreviewData('clients', list.filter(c => c.id !== id)); showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return { success: true }; }
+    },
+    assignRoutine: async (id, routineId) => {
+      try { const r = await serverFetch(`/api/clients/${id}/routines`, { method: 'POST', body: JSON.stringify({ routineId }) }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = [...(c.assignedRoutines||[]), routineId]; setPreviewData('clients', list); } showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return c; }
+    },
+    unassignRoutine: async (id, routineId) => {
+      try { const r = await serverFetch(`/api/clients/${id}/routines/${routineId}`, { method: 'DELETE' }); serverOnline = true; autoSync(); return r; }
+      catch { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = (c.assignedRoutines||[]).filter(r => r !== routineId); setPreviewData('clients', list); } showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return c; }
+    },
+    regeneratePassword: async (id) => {
+      try { const r = await serverFetch(`/api/clients/${id}/regenerate-password`, { method: 'POST' }); serverOnline = true; return r; }
+      catch { const pwd = generatePassword(); const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.password = pwd; setPreviewData('clients', list); } return { password: pwd }; }
+    },
+    verifyPassword: async (id, password) => {
+      try { const r = await serverFetch(`/api/clients/${id}/verify-password`, { method: 'POST', body: JSON.stringify({ password }) }); serverOnline = true; return r; }
+      catch { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); return { success: c && c.password === password, client: c }; }
+    }
   },
   weeklySchedule: {
-    get: async (clientId) => { const all = getPreviewData('weekly') || {}; return all[clientId] || []; },
+    get: async (clientId) => {
+      try { const d = await serverFetch(`/api/clients/${clientId}/weekly-schedule`); serverOnline = true; return d; }
+      catch { const all = getPreviewData('weekly') || {}; return all[clientId] || []; }
+    },
     set: async (clientId, dayOfWeek, routineId) => {
-      const all = getPreviewData('weekly') || {}; const list = all[clientId] || [];
-      const idx = list.findIndex(w => w.day_of_week === dayOfWeek);
-      if (idx > -1) list[idx] = { day_of_week: dayOfWeek, routine_id: routineId };
-      else list.push({ day_of_week: dayOfWeek, routine_id: routineId });
-      all[clientId] = list; setPreviewData('weekly', all); return { success: true };
+      try { const r = await serverFetch(`/api/clients/${clientId}/weekly-schedule`, { method: 'POST', body: JSON.stringify({ dayOfWeek, routineId }) }); serverOnline = true; autoSync(); return r; }
+      catch { const all = getPreviewData('weekly') || {}; const list = all[clientId] || []; const idx = list.findIndex(w => w.day_of_week === dayOfWeek); if (idx > -1) list[idx] = { day_of_week: dayOfWeek, routine_id: routineId }; else list.push({ day_of_week: dayOfWeek, routine_id: routineId }); all[clientId] = list; setPreviewData('weekly', all); showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return { success: true }; }
     },
     remove: async (clientId, dayOfWeek) => {
-      const all = getPreviewData('weekly') || {}; const list = all[clientId] || [];
-      all[clientId] = list.filter(w => w.day_of_week !== dayOfWeek);
-      setPreviewData('weekly', all); return { success: true };
+      try { const r = await serverFetch(`/api/clients/${clientId}/weekly-schedule/${dayOfWeek}`, { method: 'DELETE' }); serverOnline = true; autoSync(); return r; }
+      catch { const all = getPreviewData('weekly') || {}; const list = all[clientId] || []; all[clientId] = list.filter(w => w.day_of_week !== dayOfWeek); setPreviewData('weekly', all); showToast('Guardado localmente', 'check_circle', 'text-primary-fixed'); return { success: true }; }
     }
   }
 };

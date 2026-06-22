@@ -8,13 +8,16 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
+// Serve mobile app folder for direct access (GitHub Pages compatible path)
+app.use('/Movil', express.static(path.join(__dirname, 'Movil')));
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Mobile app
+// Mobile app (legacy routes)
 app.get(['/app', '/movil'], (req, res) => {
-  res.sendFile(path.join(__dirname, 'movil', 'movil.html'));
+  res.sendFile(path.join(__dirname, 'Movil', 'movil.html'));
 });
 
 // ── Exercises ──

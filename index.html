@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Palmeras Gym HQ - Sistema de Gestión</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary-fixed": "#a855f7",
+        "outline-variant": "#444932",
+        "outline": "#8f9378",
+        "on-secondary-fixed-variant": "#832600",
+        "on-secondary-container": "#511400",
+        "surface": "#131313",
+        "surface-tint": "#a855f7",
+        "on-tertiary-fixed": "#422006",
+        "on-surface": "#e4e2e1",
+        "inverse-surface": "#e4e2e1",
+        "secondary-container": "#f97316",
+        "secondary": "#fdba74",
+        "on-secondary-fixed": "#390c00",
+        "secondary-fixed-dim": "#ffb59d",
+        "primary-container": "#a855f7",
+        "secondary-fixed": "#ffdbd0",
+        "on-secondary": "#5d1800",
+        "on-primary-fixed": "#ffffff",
+        "on-tertiary": "#422006",
+        "surface-variant": "#353535",
+        "on-tertiary-fixed-variant": "#854d0e",
+        "surface-container": "#1f2020",
+        "surface-dim": "#131313",
+        "background": "#131313",
+        "tertiary": "#facc15",
+        "surface-bright": "#393939",
+        "inverse-primary": "#c084fc",
+        "surface-container-low": "#1b1c1c",
+        "on-error": "#690005",
+        "surface-container-lowest": "#0e0e0e",
+        "on-tertiary-container": "#713f12",
+        "tertiary-container": "#fef9c3",
+        "surface-container-high": "#2a2a2a",
+        "error-container": "#93000a",
+        "on-primary-fixed-variant": "#e9d5ff",
+        "on-background": "#e4e2e1",
+        "primary-fixed-dim": "#7c3aed",
+        "surface-container-highest": "#353535",
+        "on-error-container": "#ffdad6",
+        "on-primary-container": "#2e1065",
+        "on-primary": "#3b0764",
+        "tertiary-fixed": "#facc15",
+        "tertiary-fixed-dim": "#eab308",
+        "error": "#ffb4ab",
+        "inverse-on-surface": "#303030",
+        "on-surface-variant": "#c5c9ac",
+        "primary": "#ffffff"
+      },
+      borderRadius: { DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px" },
+      spacing: { base: "4px", xs: "8px", sm: "16px", md: "24px", gutter: "20px", lg: "40px", xl: "64px", "container-max": "1280px" },
+      fontFamily: { "body-lg": ["Inter"], "body-md": ["Inter"], "display-lg": ["Montserrat"], "caption": ["Inter"], "headline-lg": ["Montserrat"], "headline-md": ["Montserrat"], "label-md": ["Inter"] },
+      fontSize: {
+        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "800" }],
+        "caption": ["12px", { lineHeight: "16px", fontWeight: "500" }],
+        "headline-lg": ["32px", { lineHeight: "40px", fontWeight: "700" }],
+        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "700" }],
+        "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "600" }]
+      }
+    }
+  }
+}
+</script>
+<style>
+body { background-color: #000000; color: #e4e2e1; font-family: 'Inter', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+.material-symbols-outlined.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+.tonal-elevation-1 { background-color: #121212; border: 1px solid #2D2D2D; }
+.tonal-elevation-2 { background-color: #2D2D2D; }
+.primary-glow { box-shadow: 0 0 15px rgba(168, 85, 247, 0.15); }
+.primary-glow-lg { box-shadow: 0 0 25px rgba(168, 85, 247, 0.2); }
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #000000; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #444932; border-radius: 10px; }
+.modal-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+.page { display: none; }
+.page.active { display: block; }
+.nav-active { background-color: #a855f7 !important; color: #ffffff !important; border-radius: 0.5rem; font-weight: 700; }
+.nav-active .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+.toast { position: fixed; bottom: 24px; right: 24px; left: 24px; z-index: 1000; transform: translateY(100px); opacity: 0; transition: all 0.3s ease; max-width: 400px; margin: 0 auto; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.empty-state-icon { width: 56px; height: 56px; border-radius: 50%; background: #2a2a2a; display: flex; align-items: center; justify-content: center; }
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.pulse-dot.green { background: #a855f7; box-shadow: 0 0 6px rgba(168,85,247,0.5); }
+.pulse-dot.orange { background: #ff5711; box-shadow: 0 0 6px rgba(255,87,17,0.5); }
+.drag-handle { cursor: grab; }
+.drag-handle:active { cursor: grabbing; }
+.dragging { opacity: 0.5; }
+.stat-card { background-color: #121212; border: 1px solid #2D2D2D; border-radius: 0.75rem; padding: 1rem; }
+.stat-value { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 28px; line-height: 1; color: #a855f7; }
+.stat-label { font-size: 12px; font-weight: 500; color: #8f9378; text-transform: uppercase; letter-spacing: 0.05em; }
+.chart-bar { height: 8px; border-radius: 4px; background: #2D2D2D; overflow: hidden; }
+.chart-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+.category-badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.category-badge.fuerza { background: rgba(168,85,247,0.15); color: #a855f7; }
+.category-badge.cardio { background: rgba(249,115,22,0.15); color: #f97316; }
+.category-badge.flexibilidad { background: rgba(250,204,21,0.15); color: #facc15; }
+.loading-spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #2D2D2D; border-top-color: #a855f7; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.day-today { border-color: #a855f7 !important; box-shadow: 0 0 20px rgba(168,85,247,0.15); }
+.day-today .day-label { color: #a855f7; font-weight: 700; }
+.day-today .day-number { color: #a855f7; }
+.day-cell { min-height: 180px; transition: all 0.2s; }
+.day-cell:hover { border-color: #8f9378; }
+</style>
+</head>
+<body class="overflow-hidden">
+
+<div id="toast" class="toast tonal-elevation-1 rounded-xl px-md py-sm flex items-center gap-sm">
+  <span id="toastIcon" class="material-symbols-outlined text-primary-fixed">check_circle</span>
+  <span id="toastMsg" class="text-body-md text-on-surface">Acción completada</span>
+</div>
+
+<aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 flex flex-col border-r border-outline-variant bg-surface z-50 max-md:-left-full max-md:w-3/4 max-md:transition-all max-md:duration-300 max-md:ease-in-out">
+  <div class="p-md">
+    <h1 class="font-display-lg text-primary-fixed tracking-tighter uppercase text-[24px]">Palmeras Gym</h1>
+    <p class="font-label-md text-on-surface-variant text-[10px] tracking-widest uppercase">Terminal de Administración</p>
+  </div>
+  <nav id="sidebarNav" class="flex-1 px-sm space-y-xs custom-scrollbar overflow-y-auto">
+    <a data-page="dashboard" class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors rounded-lg cursor-pointer" href="#dashboard">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="font-label-md">Tablero</span>
+    </a>
+    <a data-page="exercises" class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors rounded-lg cursor-pointer" href="#exercises">
+      <span class="material-symbols-outlined">fitness_center</span>
+      <span class="font-label-md">Biblioteca de Ejercicios</span>
+    </a>
+    <a data-page="routines" class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors rounded-lg cursor-pointer" href="#routines">
+      <span class="material-symbols-outlined">edit_note</span>
+      <span class="font-label-md">Creador de Rutinas</span>
+    </a>
+    <a data-page="weekly" class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors rounded-lg cursor-pointer" href="#weekly">
+      <span class="material-symbols-outlined">calendar_month</span>
+      <span class="font-label-md">Planilla Semanal</span>
+    </a>
+    <a data-page="clients" class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors rounded-lg cursor-pointer" href="#clients">
+      <span class="material-symbols-outlined">group</span>
+      <span class="font-label-md">Lista de Clientes</span>
+    </a>
+  </nav>
+  <div class="px-sm py-md mt-auto border-t border-outline-variant">
+    <button id="btnQuickRoutine" class="w-full bg-primary-fixed text-on-primary-fixed py-sm rounded-lg font-bold text-label-md mb-md primary-glow hover:brightness-110 transition-all">
+      Añadir Rutina Rápida
+    </button>
+    <div class="space-y-xs">
+      <a data-page="settings" class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors rounded-lg cursor-pointer" href="#settings">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="font-label-md">Configuración</span>
+      </a>
+      <a data-page="support" class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors rounded-lg cursor-pointer" href="#support">
+        <span class="material-symbols-outlined">help_outline</span>
+        <span class="font-label-md">Soporte</span>
+      </a>
+    </div>
+  </div>
+</aside>
+
+<main id="mainContent" class="ml-0 md:ml-64 flex flex-col h-screen">
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40" style="display:none" onclick="closeSidebar()"></div>
+<header class="flex items-center h-16 px-md sticky top-0 z-30 bg-surface-dim border-b border-outline-variant/30 gap-sm">
+    <button id="hamburgerBtn" class="md:!hidden p-1 text-on-surface hover:text-primary-fixed transition-colors" onclick="toggleSidebar()"><span class="material-symbols-outlined">menu</span></button>
+    <div class="flex items-center gap-md flex-1 min-w-0">
+      <div class="relative w-full max-w-full md:max-w-md group">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary-fixed transition-colors">search</span>
+        <input id="globalSearch" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-10 pr-4 text-body-md focus:outline-none focus:border-primary-fixed transition-all placeholder:text-on-tertiary-fixed-variant" placeholder="Buscar..." type="text"/>
+      </div>
+    </div>
+    <div class="flex items-center gap-sm shrink-0">
+      <button id="btnCreateProgram" class="bg-primary-fixed text-on-primary-fixed px-sm py-2 rounded-lg font-bold text-label-md hover:brightness-110 transition-all flex items-center gap-1"><span class="material-symbols-outlined text-[18px] hidden max-md:inline">add</span><span class="max-md:hidden">Crear Programa</span></button>
+      <div class="flex gap-xs max-md:hidden">
+        <a href="/app" target="_blank" id="btnMobileView" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors" title="App Cliente" onclick="if(previewMode){event.preventDefault();showToast('No disponible en vista previa','info','text-on-surface-variant')}"><span class="material-symbols-outlined">smartphone</span></a>
+        <button id="btnNotifications" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+        <button id="btnHistory" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined">history</span></button>
+      </div>
+      <div class="w-10 h-10 rounded-full border-2 border-outline-variant overflow-hidden bg-surface-container-high flex items-center justify-center shrink-0">
+        <span class="material-symbols-outlined text-on-surface-variant">admin_panel_settings</span>
+      </div>
+    </div>
+  </header>
+
+  <section id="pageContainer" class="flex-1 overflow-y-auto p-md space-y-lg custom-scrollbar"></section>
+</main>
+
+<!-- Exercise Modal -->
+<div id="exerciseModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('exerciseModal')">
+  <div class="tonal-elevation-1 rounded-xl w-full max-w-lg mx-sm max-h-[90vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
+    <div class="flex justify-between items-center p-md border-b border-outline-variant">
+      <h3 id="exerciseModalTitle" class="font-headline-md text-headline-md text-on-surface">Nuevo Ejercicio</h3>
+      <button onclick="closeModal('exerciseModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <form id="exerciseForm" class="p-md space-y-sm">
+      <input type="hidden" id="exerciseId"/>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Nombre del Ejercicio</label>
+        <input id="exName" required class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="Ej: Press de Banca"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Categoría</label>
+        <select id="exCategory" required class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed">
+          <option value="">Seleccionar...</option>
+          <option value="Fuerza">Fuerza</option>
+          <option value="Cardio">Cardio</option>
+          <option value="Flexibilidad">Flexibilidad</option>
+        </select>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Grupos Musculares</label>
+        <input id="exMuscles" required class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="Ej: Pectorales, Tríceps"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Descripción</label>
+        <textarea id="exDescription" rows="3" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="Descripción del movimiento..."></textarea>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">URL de Imagen</label>
+        <input id="exImage" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="https://ejemplo.com/imagen.jpg"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">URL de Video <span class="text-caption text-on-surface-variant">(YouTube)</span></label>
+        <div class="flex gap-xs">
+          <input id="exVideoUrl" class="flex-1 bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="https://youtube.com/watch?v=..."/>
+          <button type="button" onclick="const v=document.getElementById('exVideoUrl');if(v.value){window.open(getEmbedUrl(v.value),'_blank')}else{showToast('Primero pega una URL','info','text-on-surface-variant')}" class="px-sm py-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-primary-fixed hover:border-primary-fixed transition-all" title="Vista previa"><span class="material-symbols-outlined">smart_display</span></button>
+        </div>
+      </div>
+      <div class="flex gap-sm pt-sm">
+        <button type="button" onclick="closeModal('exerciseModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
+        <button type="submit" class="flex-1 bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('deleteModal')">
+  <div class="tonal-elevation-1 rounded-xl w-full max-w-sm mx-sm" onclick="event.stopPropagation()">
+    <div class="p-md text-center space-y-sm">
+      <span class="material-symbols-outlined text-[48px] text-error">warning</span>
+      <h3 class="font-headline-md text-headline-md text-on-surface">¿Eliminar?</h3>
+      <p id="deleteMsg" class="text-on-surface-variant text-body-md">Esta acción no se puede deshacer.</p>
+      <div class="flex gap-sm pt-sm">
+        <button onclick="closeModal('deleteModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
+        <button id="btnConfirmDelete" class="flex-1 bg-error-container text-on-error-container py-2 rounded-lg font-bold text-label-md hover:brightness-110 transition-all">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Routine Modal -->
+<div id="routineModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('routineModal')">
+  <div class="tonal-elevation-1 rounded-xl w-full max-w-2xl mx-sm max-h-[90vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
+    <div class="flex justify-between items-center p-md border-b border-outline-variant">
+      <h3 id="routineModalTitle" class="font-headline-md text-headline-md text-on-surface">Nueva Rutina</h3>
+      <button onclick="closeModal('routineModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <form id="routineForm" class="p-md space-y-sm">
+      <input type="hidden" id="routineId"/>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Nombre de la Rutina</label>
+        <input id="rtName" required class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="Ej: Full Body Intensivo"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Categoría</label>
+        <select id="rtCategory" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed">
+          <option value="">Seleccionar...</option>
+          <option value="Fuerza">Fuerza</option>
+          <option value="Hipertrofia">Hipertrofia</option>
+          <option value="Cardio">Cardio</option>
+          <option value="Flexibilidad">Flexibilidad</option>
+          <option value="Full Body">Full Body</option>
+        </select>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Ejercicios</label>
+        <p class="text-caption text-on-surface-variant mb-xs">Selecciona ejercicios de la biblioteca y configura series, repeticiones y descanso.</p>
+        <div id="exerciseSelector" class="flex flex-wrap gap-xs mb-sm"></div>
+        <div id="routineExerciseList" class="space-y-xs min-h-[80px] tonal-elevation-1 rounded-lg p-sm">
+          <p id="routineEmptyMsg" class="text-caption text-on-surface-variant text-center py-md">Selecciona ejercicios arriba para agregarlos a la rutina.</p>
+        </div>
+      </div>
+      <div class="flex gap-sm pt-sm">
+        <button type="button" onclick="closeModal('routineModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
+        <button type="submit" class="flex-1 bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all">Guardar Rutina</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Client Modal -->
+<div id="clientModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('clientModal')">
+  <div class="tonal-elevation-1 rounded-xl w-full max-w-lg mx-sm max-h-[90vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
+    <div class="flex justify-between items-center p-md border-b border-outline-variant">
+      <h3 id="clientModalTitle" class="font-headline-md text-headline-md text-on-surface">Nuevo Cliente</h3>
+      <button onclick="closeModal('clientModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <form id="clientForm" class="p-md space-y-sm">
+      <input type="hidden" id="clientId"/>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Nombre Completo</label>
+        <input id="clName" required class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="Ej: Juan Pérez"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Email</label>
+        <input id="clEmail" type="email" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="cliente@email.com"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Teléfono</label>
+        <input id="clPhone" type="tel" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="+52 555 123 4567"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Notas</label>
+        <textarea id="clNotes" rows="2" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="Objetivos, preferencias..."></textarea>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Racha (d&iacute;as)</label>
+        <input id="clStreak" type="number" min="0" value="0" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Inicio de Abono</label>
+        <input id="clPagoInicio" type="date" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Vencimiento de Abono</label>
+        <input id="clPagoFin" type="date" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed"/>
+      </div>
+      <div>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Contrase&ntilde;a de Acceso</label>
+        <div class="flex gap-xs">
+          <input id="clPassword" readonly class="flex-1 bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md font-mono focus:outline-none focus:border-primary-fixed" placeholder="Autogenerada"/>
+          <button type="button" onclick="document.getElementById('clPassword').value=generatePassword()" class="px-sm py-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-primary-fixed hover:border-primary-fixed transition-all" title="Generar nueva"><span class="material-symbols-outlined">refresh</span></button>
+          <button type="button" onclick="copyText(document.getElementById('clPassword').value)" class="px-sm py-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-primary-fixed hover:border-primary-fixed transition-all" title="Copiar"><span class="material-symbols-outlined">content_copy</span></button>
+        </div>
+        <p class="text-caption text-on-surface-variant mt-xs">Autogenerada. El cliente la usar&aacute; para acceder a la app m&oacute;vil.</p>
+      </div>
+      <div class="flex gap-sm pt-sm">
+        <button type="button" onclick="closeModal('clientModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
+        <button type="submit" class="flex-1 bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all">Guardar Cliente</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Assign Routine Modal -->
+<div id="assignModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('assignModal')">
+  <div class="tonal-elevation-1 rounded-xl w-full max-w-md mx-sm" onclick="event.stopPropagation()">
+    <div class="flex justify-between items-center p-md border-b border-outline-variant">
+      <h3 class="font-headline-md text-headline-md text-on-surface">Asignar Rutina</h3>
+      <button onclick="closeModal('assignModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="p-md space-y-sm">
+      <p id="assignClientInfo" class="text-body-md text-on-surface-variant"></p>
+      <select id="assignRoutineSelect" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed"></select>
+      <div class="flex gap-sm pt-sm">
+        <button onclick="closeModal('assignModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
+        <button id="btnConfirmAssign" class="flex-1 bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all">Asignar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Info Modal -->
+<div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('infoModal')">
+  <div class="tonal-elevation-1 rounded-xl w-full max-w-lg mx-sm" onclick="event.stopPropagation()">
+    <div class="flex justify-between items-center p-md border-b border-outline-variant">
+      <h3 id="infoModalTitle" class="font-headline-md text-headline-md text-on-surface"></h3>
+      <button onclick="closeModal('infoModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="infoModalBody" class="p-md space-y-sm text-body-md text-on-surface-variant"></div>
+  </div>
+</div>
+
+<!-- View Exercise Modal -->
+<div id="viewModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('viewModal')">
+  <div class="tonal-elevation-1 rounded-xl w-full max-w-lg mx-sm max-h-[90vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
+    <div class="flex justify-between items-center p-md border-b border-outline-variant">
+      <h3 id="viewModalTitle" class="font-headline-md text-headline-md text-on-surface"></h3>
+      <button onclick="closeModal('viewModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="viewModalBody" class="p-md"></div>
+  </div>
+</div>
+
+<script>
+// ====================================================================
+// MOCK DATA for GitHub Pages preview mode
+// ====================================================================
+const MOCK_EXERCISES = [
+  { id: 'ex1', name: 'Press de Banca', category: 'Fuerza', muscles: 'Pectorales, Tríceps, Hombros', description: 'Ejercicio compuesto para el tren superior. Trabaja pecho, hombros y tríceps de forma integrada.', image_url: '', video_url: 'https://www.youtube.com/watch?v=UaNwCwCvjJM', created_at: '2026-01-15T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'ex2', name: 'Sentadilla', category: 'Fuerza', muscles: 'Cuádriceps, Glúteos, Isquiotibiales', description: 'El rey de los ejercicios de pierna. Fundamental para desarrollar fuerza y masa muscular en el tren inferior.', image_url: '', video_url: 'https://www.youtube.com/watch?v=qaCwWDvjnSA', created_at: '2026-01-15T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'ex3', name: 'Cinta de Correr', category: 'Cardio', muscles: 'Cardiovascular', description: 'Ejercicio aeróbico de intensidad variable. Ideal para mejorar la resistencia cardiovascular y quemar calorías.', image_url: '', video_url: '', created_at: '2026-02-10T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'ex4', name: 'Yoga Flow', category: 'Flexibilidad', muscles: 'Cuerpo completo', description: 'Secuencia de estiramientos dinámicos que mejora la flexibilidad, el equilibrio y la conexión cuerpo-mente.', image_url: '', video_url: '', created_at: '2026-03-05T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'ex5', name: 'Dominadas', category: 'Fuerza', muscles: 'Espalda, Bíceps', description: 'Ejercicio de tracción con peso corporal. Excelente para desarrollar espalda ancha y brazos fuertes.', image_url: '', video_url: 'https://www.youtube.com/watch?v=eGo4I5rX1mk', created_at: '2026-04-20T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'ex6', name: 'Burpees', category: 'Cardio', muscles: 'Cuerpo completo', description: 'Ejercicio explosivo de alta intensidad que combina sentadilla, plancha y salto. Quema calorías máximo.', image_url: '', video_url: '', created_at: '2026-05-10T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' }
+];
+const MOCK_ROUTINES = [
+  { id: 'rt1', name: 'Full Body Intensivo', category: 'Fuerza', exercises: [{ exercise_id: 'ex1', sets: 4, reps: '8-10', rest: '90s' }, { exercise_id: 'ex2', sets: 4, reps: '10-12', rest: '90s' }, { exercise_id: 'ex5', sets: 3, reps: '6-8', rest: '60s' }], created_at: '2026-03-01T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'rt2', name: 'Cardio Quema Grasa', category: 'Cardio', exercises: [{ exercise_id: 'ex3', sets: 1, reps: '20 min', rest: '0s' }, { exercise_id: 'ex6', sets: 3, reps: '15 reps', rest: '30s' }], created_at: '2026-04-01T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'rt3', name: 'Flexibilidad y Recuperación', category: 'Flexibilidad', exercises: [{ exercise_id: 'ex4', sets: 1, reps: '30 min', rest: '0s' }], created_at: '2026-05-01T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' }
+];
+const MOCK_WEEKLY = {
+  cl1: [
+    { day_of_week: 0, routine_id: 'rt1' },
+    { day_of_week: 2, routine_id: 'rt2' },
+    { day_of_week: 4, routine_id: 'rt1' }
+  ],
+  cl2: [
+    { day_of_week: 0, routine_id: 'rt2' },
+    { day_of_week: 3, routine_id: 'rt3' }
+  ]
+};
+const MOCK_CLIENTS = [
+  { id: 'cl1', name: 'María García', email: 'maria@email.com', phone: '+52 555 123 4567', notes: 'Objetivo: pérdida de peso', streak: 15, password: 'maria2026', pago_inicio: '2026-01-01', pago_fin: '2026-12-31', assignedRoutines: ['rt1', 'rt2'], created_at: '2026-01-10T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'cl2', name: 'Carlos López', email: 'carlos@email.com', phone: '+52 555 987 6543', notes: 'Lesión de rodilla - evitar impacto', streak: 42, password: 'carlos01', pago_inicio: '2026-02-01', pago_fin: '2026-07-31', assignedRoutines: ['rt3'], created_at: '2026-02-05T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'cl3', name: 'Ana Martínez', email: 'ana@email.com', phone: '+52 555 456 7890', notes: 'Atleta avanzada', streak: 90, password: 'ana2026!', pago_inicio: '2025-06-01', pago_fin: '2026-06-01', assignedRoutines: ['rt1', 'rt3'], created_at: '2025-06-01T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' }
+];
+
+// ====================================================================
+// API LAYER (fetch-based with fallback to mock data)
+// ====================================================================
+let previewMode = false;
+const previewBanner = document.createElement('div');
+previewBanner.id = 'previewBanner';
+previewBanner.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#ff5711;color:#fff;text-align:center;padding:6px 16px;font-size:13px;font-weight:600;letter-spacing:0.5px;';
+previewBanner.innerHTML = 'Vista Previa — Datos de Demostración  <span style="opacity:0.7;font-weight:400;">(los cambios no persistirán)</span>';
+document.body.prepend(previewBanner);
+
+function getPreviewData(key) {
+  return JSON.parse(localStorage.getItem('preview_' + key) || 'null');
+}
+function setPreviewData(key, data) {
+  localStorage.setItem('preview_' + key, JSON.stringify(data));
+}
+function initPreviewData() {
+  if (!getPreviewData('exercises')) setPreviewData('exercises', MOCK_EXERCISES);
+  if (!getPreviewData('routines')) setPreviewData('routines', MOCK_ROUTINES);
+  if (!getPreviewData('clients')) setPreviewData('clients', MOCK_CLIENTS);
+  if (!getPreviewData('weekly')) setPreviewData('weekly', JSON.parse(JSON.stringify(MOCK_WEEKLY)));
+}
+
+// Sidebar toggle for mobile
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const closed = sidebar.classList.contains('max-md:-left-full');
+  if (closed) {
+    sidebar.classList.remove('max-md:-left-full');
+    overlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  } else {
+    sidebar.classList.add('max-md:-left-full');
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.add('max-md:-left-full');
+  overlay.style.display = 'none';
+  document.body.style.overflow = '';
+}
+// Close sidebar on nav link click in mobile
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('#sidebar a');
+  if (link && window.innerWidth < 768) closeSidebar();
+});
+
+async function tryAPI(fetchFn, previewKey, filterFn) {
+  try {
+    const res = await fetchFn();
+    if (!res.ok) throw new Error();
+    return res.json();
+  } catch {
+    if (!previewMode) {
+      previewMode = true;
+      initPreviewData();
+      const banner = document.getElementById('previewBanner');
+      if (banner) banner.style.display = 'block';
+    }
+    let data = getPreviewData(previewKey) || [];
+    return filterFn ? filterFn(data) : data;
+  }
+}
+
+const API = {
+  async request(url, opts = {}) {
+    const res = await fetch(url, { headers: { 'Content-Type': 'application/json', ...opts.headers }, ...opts });
+    if (!res.ok) { let msg; try { const e = await res.json(); msg = e.error; } catch { msg = res.statusText; } throw new Error(msg); }
+    return res.json();
+  },
+  exercises: {
+    all: () => tryAPI(() => fetch('/api/exercises'), 'exercises'),
+    get: (id) => tryAPI(() => fetch(`/api/exercises/${id}`), 'exercises', data => data.find(e => e.id === id)),
+    add: async (d) => {
+      if (previewMode) { const list = getPreviewData('exercises'); list.push(d); setPreviewData('exercises', list); return d; }
+      return API.request('/api/exercises', { method: 'POST', body: JSON.stringify(d) });
+    },
+    update: async (id, d) => {
+      if (previewMode) { const list = getPreviewData('exercises'); const idx = list.findIndex(e => e.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, image_url: d.imageUrl, video_url: d.videoUrl, updated_at: new Date().toISOString()}; setPreviewData('exercises', list); return list[idx]; } return d; }
+      return API.request(`/api/exercises/${id}`, { method: 'PUT', body: JSON.stringify(d) });
+    },
+    delete: async (id) => {
+      if (previewMode) { const list = getPreviewData('exercises'); setPreviewData('exercises', list.filter(e => e.id !== id)); return { success: true }; }
+      return API.request(`/api/exercises/${id}`, { method: 'DELETE' });
+    }
+  },
+  routines: {
+    all: () => tryAPI(() => fetch('/api/routines'), 'routines'),
+    get: (id) => tryAPI(() => fetch(`/api/routines/${id}`), 'routines', data => data.find(r => r.id === id)),
+    add: async (d) => {
+      if (previewMode) { const list = getPreviewData('routines'); list.push(d); setPreviewData('routines', list); return d; }
+      return API.request('/api/routines', { method: 'POST', body: JSON.stringify(d) });
+    },
+    update: async (id, d) => {
+      if (previewMode) { const list = getPreviewData('routines'); const idx = list.findIndex(r => r.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('routines', list); return list[idx]; } return d; }
+      return API.request(`/api/routines/${id}`, { method: 'PUT', body: JSON.stringify(d) });
+    },
+    delete: async (id) => {
+      if (previewMode) { const list = getPreviewData('routines'); setPreviewData('routines', list.filter(r => r.id !== id)); return { success: true }; }
+      return API.request(`/api/routines/${id}`, { method: 'DELETE' });
+    }
+  },
+  clients: {
+    all: () => tryAPI(() => fetch('/api/clients'), 'clients'),
+    get: (id) => tryAPI(() => fetch(`/api/clients/${id}`), 'clients', data => data.find(c => c.id === id)),
+    add: async (d) => {
+      if (previewMode) { const list = getPreviewData('clients'); list.push(d); setPreviewData('clients', list); return d; }
+      return API.request('/api/clients', { method: 'POST', body: JSON.stringify(d) });
+    },
+    update: async (id, d) => {
+      if (previewMode) { const list = getPreviewData('clients'); const idx = list.findIndex(c => c.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('clients', list); return list[idx]; } return d; }
+      return API.request(`/api/clients/${id}`, { method: 'PUT', body: JSON.stringify(d) });
+    },
+    delete: async (id) => {
+      if (previewMode) { const list = getPreviewData('clients'); setPreviewData('clients', list.filter(c => c.id !== id)); return { success: true }; }
+      return API.request(`/api/clients/${id}`, { method: 'DELETE' });
+    },
+    assignRoutine: async (id, routineId) => {
+      if (previewMode) { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = [...(c.assignedRoutines||[]), routineId]; setPreviewData('clients', list); } return c; }
+      return API.request(`/api/clients/${id}/routines`, { method: 'POST', body: JSON.stringify({ routineId }) });
+    },
+    unassignRoutine: async (id, routineId) => {
+      if (previewMode) { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = (c.assignedRoutines||[]).filter(r => r !== routineId); setPreviewData('clients', list); } return c; }
+      return API.request(`/api/clients/${id}/routines/${routineId}`, { method: 'DELETE' });
+    },
+    regeneratePassword: async (id) => {
+      if (previewMode) { const pwd = generatePassword(); const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.password = pwd; setPreviewData('clients', list); } return { password: pwd }; }
+      return API.request(`/api/clients/${id}/regenerate-password`, { method: 'POST' });
+    },
+    verifyPassword: async (id, password) => {
+      if (previewMode) { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); return { success: c && c.password === password, client: c }; }
+      return API.request(`/api/clients/${id}/verify-password`, { method: 'POST', body: JSON.stringify({ password }) });
+    }
+  },
+  weeklySchedule: {
+    get: async (clientId) => {
+      if (previewMode) {
+        const all = getPreviewData('weekly') || {};
+        return all[clientId] || [];
+      }
+      return API.request(`/api/clients/${clientId}/weekly-schedule`);
+    },
+    set: async (clientId, dayOfWeek, routineId) => {
+      if (previewMode) {
+        const all = getPreviewData('weekly') || {};
+        const list = all[clientId] || [];
+        const idx = list.findIndex(w => w.day_of_week === dayOfWeek);
+        if (idx > -1) list[idx] = { day_of_week: dayOfWeek, routine_id: routineId };
+        else list.push({ day_of_week: dayOfWeek, routine_id: routineId });
+        all[clientId] = list;
+        setPreviewData('weekly', all);
+        return { success: true };
+      }
+      return API.request(`/api/clients/${clientId}/weekly-schedule`, { method: 'POST', body: JSON.stringify({ dayOfWeek, routineId }) });
+    },
+    remove: async (clientId, dayOfWeek) => {
+      if (previewMode) {
+        const all = getPreviewData('weekly') || {};
+        const list = all[clientId] || [];
+        all[clientId] = list.filter(w => w.day_of_week !== dayOfWeek);
+        setPreviewData('weekly', all);
+        return { success: true };
+      }
+      return API.request(`/api/clients/${clientId}/weekly-schedule/${dayOfWeek}`, { method: 'DELETE' });
+    }
+  }
+};
+
+// ====================================================================
+// UTILITY
+// ====================================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6) }
+function copyText(t) { navigator.clipboard.writeText(t).then(() => showToast('Copiado al portapapeles', 'content_copy')).catch(() => {}) }
+function generatePassword() {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let pwd = '';
+  for (let i = 0; i < 8; i++) pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+  return pwd;
+}
+function timeAgo(iso) {
+  const sec = (new Date() - new Date(iso)) / 1000;
+  if (sec < 60) return 'hace unos segundos';
+  const min = Math.floor(sec/60); if (min < 60) return `hace ${min}m`;
+  const hr = Math.floor(min/60); if (hr < 24) return `hace ${hr}h`;
+  const d = Math.floor(hr/24); if (d < 30) return `hace ${d}d`;
+  return `hace ${Math.floor(d/30)}mes`;
+}
+function catClass(cat) { return (cat||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'') }
+function getEmbedUrl(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : url;
+}
+function showToast(msg, icon='check_circle', color='text-primary-fixed') {
+  const t = document.getElementById('toast');
+  document.getElementById('toastIcon').className = `material-symbols-outlined ${color}`;
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._hide); t._hide = setTimeout(() => t.classList.remove('show'), 2500);
+}
+function closeModal(id) { document.getElementById(id).classList.add('hidden') }
+function openModal(id) { document.getElementById(id).classList.remove('hidden') }
+
+// ====================================================================
+// ROUTER
+// ====================================================================
+let currentPage = 'dashboard';
+async function navigate(page) {
+  const prevPage = currentPage;
+  currentPage = page;
+  document.querySelectorAll('#sidebarNav a').forEach(a => {
+    a.classList.remove('nav-active');
+    if (a.dataset.page === page) a.classList.add('nav-active');
+  });
+  if (page !== prevPage) {
+    document.getElementById('globalSearch').value = '';
+    exerciseSearch = '';
+    clientSearch = '';
+  }
+  await renderPage(page);
+}
+window.addEventListener('hashchange', () => {
+  const page = location.hash.replace('#','') || 'dashboard';
+  navigate(page);
+});
+
+// ====================================================================
+// RENDER ENGINE
+// ====================================================================
+async function renderPage(page) {
+  const c = document.getElementById('pageContainer');
+  c.innerHTML = '<div class="flex items-center justify-center py-xl"><div class="loading-spinner"></div><span class="ml-sm text-on-surface-variant">Cargando...</span></div>';
+  try {
+    switch (page) {
+      case 'dashboard': c.innerHTML = await renderDashboard(); break;
+      case 'exercises': c.innerHTML = await renderExercises(); attachExerciseEvents(); break;
+      case 'routines': c.innerHTML = await renderRoutines(); break;
+      case 'weekly': c.innerHTML = await renderWeekly(); break;
+      case 'clients': c.innerHTML = await renderClients(); break;
+      case 'settings': c.innerHTML = await renderSettings(); setTimeout(gitRefreshStatus, 100); break;
+      case 'support': openInfoModal('Soporte', '<p>Centro de ayuda de Palmeras Gym App.</p><p class="mt-sm">• Documentación: <span class="text-primary-fixed">docs.palmerasgym.app</span><br/>• Email: <span class="text-primary-fixed">soporte@palmerasgym.app</span><br/>• Chat en vivo: Lun-Vie 9:00-18:00<br/>• Tiempo de respuesta: &lt; 4h</p>'); navigate(currentPage); break;
+      default: navigate('dashboard');
+    }
+  } catch (e) {
+    c.innerHTML = `<div class="tonal-elevation-1 rounded-xl p-lg text-center"><span class="material-symbols-outlined text-[48px] text-error">cloud_off</span><h3 class="font-headline-md text-[18px] text-on-surface mt-sm">Error de conexión</h3><p class="text-caption text-on-surface-variant mt-xs">${e.message}</p><button onclick="navigate('${page}')" class="mt-md px-lg py-sm bg-primary-fixed text-on-primary-fixed rounded-lg font-bold text-label-md">Reintentar</button></div>`;
+  }
+}
+
+// ====================================================================
+// DASHBOARD
+// ====================================================================
+async function renderDashboard() {
+  const [ex, rt, cl] = await Promise.all([API.exercises.all(), API.routines.all(), API.clients.all()]);
+  const cats = {};
+  ex.forEach(e => { cats[e.category] = (cats[e.category]||0)+1 });
+  const maxCat = Math.max(...Object.values(cats), 1);
+  const recentEx = [...ex].sort((a,b) => new Date(b.updated_at)-new Date(a.updated_at)).slice(0,4);
+  const totalExInRoutines = rt.reduce((s,r) => s + (r.exercises||[]).length, 0);
+  const clientsWithRoutines = cl.filter(c => c.assignedRoutines && c.assignedRoutines.length > 0).length;
+  return `
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-sm">
+      <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Tablero de Control</h2>
+        <p class="text-on-surface-variant font-body-md">Resumen general del rendimiento del sistema.</p>
+      </div>
+      <button onclick="navigate('exercises')" class="bg-primary-fixed text-on-primary-fixed px-lg py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:scale-105 transition-transform max-md:w-full max-md:justify-center">
+        <span class="material-symbols-outlined">add</span> Nuevo Ejercicio
+      </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+      <div class="stat-card"><div class="stat-label">Ejercicios</div><div class="stat-value">${ex.length}</div><div class="text-caption text-on-surface-variant mt-xs">${ex.filter(e=>e.category==='Fuerza').length} Fuerza · ${ex.filter(e=>e.category==='Cardio').length} Cardio · ${ex.filter(e=>e.category==='Flexibilidad').length} Flexibilidad</div></div>
+      <div class="stat-card"><div class="stat-label">Rutinas</div><div class="stat-value">${rt.length}</div><div class="text-caption text-on-surface-variant mt-xs">${totalExInRoutines} ejercicios asignados en total</div></div>
+      <div class="stat-card"><div class="stat-label">Clientes</div><div class="stat-value">${cl.length}</div><div class="text-caption text-on-surface-variant mt-xs">${clientsWithRoutines} con rutina asignada</div></div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-md">
+      <div class="tonal-elevation-1 rounded-xl p-md">
+        <h3 class="font-headline-md text-[18px] text-on-surface mb-md">Distribución por Categoría</h3>
+        ${Object.entries(cats).map(([cat, count]) => `
+          <div class="mb-sm">
+            <div class="flex justify-between text-caption mb-xs"><span class="text-on-surface-variant">${cat}</span><span class="text-primary-fixed">${count}</span></div>
+            <div class="chart-bar"><div class="chart-bar-fill bg-primary-fixed" style="width:${(count/maxCat*100).toFixed(0)}%"></div></div>
+          </div>
+        `).join('')}
+        ${Object.keys(cats).length === 0 ? '<p class="text-caption text-on-surface-variant">Sin datos todavía.</p>' : ''}
+      </div>
+      <div class="tonal-elevation-1 rounded-xl p-md">
+        <h3 class="font-headline-md text-[18px] text-on-surface mb-md">Actividad Reciente</h3>
+        ${recentEx.map(e => `
+          <div class="flex items-center gap-sm py-xs border-b border-outline-variant/30 last:border-0">
+            <span class="pulse-dot ${e.category==='Cardio'?'orange':'green'}"></span>
+            <div class="flex-1"><span class="text-body-md text-on-surface">${e.name}</span><span class="text-caption text-on-surface-variant ml-xs">${timeAgo(e.updated_at)}</span></div>
+            <span class="category-badge ${catClass(e.category)}">${e.category}</span>
+          </div>
+        `).join('')}
+        ${recentEx.length === 0 ? '<p class="text-caption text-on-surface-variant">Sin actividad reciente.</p>' : ''}
+      </div>
+    </div>`;
+}
+
+// ====================================================================
+// EXERCISE LIBRARY
+// ====================================================================
+let exerciseFilter = 'all';
+let exerciseSearch = '';
+
+async function renderExercises() {
+  let ex = await API.exercises.all();
+  if (exerciseFilter !== 'all') ex = ex.filter(e => e.category === exerciseFilter);
+  if (exerciseSearch) ex = ex.filter(e => e.name.toLowerCase().includes(exerciseSearch) || e.muscles.toLowerCase().includes(exerciseSearch));
+  return `
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-sm">
+      <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Biblioteca de Ejercicios</h2>
+        <p class="text-on-surface-variant font-body-md">Gestiona y cataloga tus movimientos de entrenamiento atlético.</p>
+      </div>
+      <button onclick="openExerciseModal()" class="bg-primary-fixed text-on-primary-fixed px-lg py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:scale-105 transition-transform max-md:w-full max-md:justify-center">
+        <span class="material-symbols-outlined">add</span> Crear Nuevo Ejercicio
+      </button>
+    </div>
+    <div class="flex gap-sm items-center border-b border-outline-variant pb-md flex-wrap">
+      ${['all','Fuerza','Cardio','Flexibilidad'].map(c => `
+        <button data-filter="${c}" class="px-sm py-xs rounded-full font-label-md text-label-md transition-colors ${exerciseFilter===c?'bg-primary-fixed/10 text-primary-fixed border border-primary-fixed/20':'hover:bg-surface-container text-on-surface-variant'}">${c==='all'?'Toda la Biblioteca':c}</button>
+      `).join('')}
+      <div class="h-6 w-px bg-outline-variant mx-xs"></div>
+      <button onclick="showToast('Filtros avanzados próximamente','info','text-on-surface-variant')" class="flex items-center gap-xs px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors font-label-md text-label-md">
+        <span class="material-symbols-outlined text-[18px]">filter_list</span> Filtros Avanzados
+      </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-md pb-xl">
+      ${ex.map(e => renderExerciseCard(e)).join('')}
+      <div onclick="openExerciseModal()" class="tonal-elevation-1 rounded-xl border-dashed border-2 border-outline-variant flex flex-col items-center justify-center p-md text-center hover:bg-surface-container transition-colors cursor-pointer group min-h-[280px]">
+        <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-sm group-hover:bg-primary-fixed transition-colors">
+          <span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-primary-fixed">add_circle</span>
+        </div>
+        <span class="font-headline-md text-[16px] text-on-surface">Nuevo Movimiento</span>
+        <p class="text-caption text-on-surface-variant mt-xs">Añade un ejercicio personalizado a tu biblioteca global.</p>
+      </div>
+    </div>`;
+}
+
+function renderExerciseCard(e) {
+  return `
+    <div class="tonal-elevation-1 rounded-xl overflow-hidden group hover:border-primary-fixed transition-all cursor-pointer" onclick="viewExercise('${e.id}')">
+      <div class="h-32 relative flex items-center justify-center bg-surface-container-high">
+        <span class="material-symbols-outlined text-[48px] text-outline-variant group-hover:text-primary-fixed transition-colors">fitness_center</span>
+        ${e.video_url ? `<div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors"><span class="material-symbols-outlined text-[48px] text-white/80 drop-shadow-lg" style="font-variation-settings:'FILL' 1">play_circle</span></div>` : ''}
+        <div class="absolute top-3 left-3 category-badge ${catClass(e.category)}">${e.category}</div>
+      </div>
+      <div class="p-sm space-y-xs">
+        <h3 class="font-headline-md text-[18px] text-on-surface">${e.name}</h3>
+        <div class="flex items-center gap-xs text-on-surface-variant text-caption">
+          <span class="material-symbols-outlined text-[14px]">fitness_center</span>
+          <span>${e.muscles}</span>
+        </div>
+        <div class="flex justify-between items-center pt-xs">
+          <span class="text-caption text-on-surface-variant">${timeAgo(e.updated_at)}</span>
+          <span onclick="event.stopPropagation();openExerciseModal('${e.id}')" class="text-primary-fixed hover:underline text-label-md font-bold cursor-pointer">Editar</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+function attachExerciseEvents() {
+  document.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => { exerciseFilter = btn.dataset.filter; navigate('exercises'); });
+  });
+}
+
+async function openExerciseModal(id) {
+  const title = document.getElementById('exerciseModalTitle');
+  const form = document.getElementById('exerciseForm');
+  form.reset();
+  document.getElementById('exerciseId').value = '';
+  title.textContent = 'Nuevo Ejercicio';
+  document.getElementById('exVideoUrl').value = '';
+  if (id) {
+    title.textContent = 'Cargando...';
+    openModal('exerciseModal');
+    try {
+      const ex = await API.exercises.get(id);
+      if (!ex) { closeModal('exerciseModal'); showToast('Ejercicio no encontrado','error','text-error'); return; }
+      title.textContent = 'Editar Ejercicio';
+      document.getElementById('exerciseId').value = id;
+      document.getElementById('exName').value = ex.name;
+      document.getElementById('exCategory').value = ex.category;
+      document.getElementById('exMuscles').value = ex.muscles;
+      document.getElementById('exDescription').value = ex.description || '';
+      document.getElementById('exImage').value = ex.image_url || '';
+      document.getElementById('exVideoUrl').value = ex.video_url || '';
+    } catch (e) {
+      closeModal('exerciseModal');
+      showToast('Error al cargar: ' + e.message, 'error', 'text-error');
+    }
+    return;
+  }
+  openModal('exerciseModal');
+}
+
+document.getElementById('exerciseForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const id = document.getElementById('exerciseId').value;
+  const data = {
+    name: document.getElementById('exName').value.trim(),
+    category: document.getElementById('exCategory').value,
+    muscles: document.getElementById('exMuscles').value.trim(),
+    description: document.getElementById('exDescription').value.trim(),
+    imageUrl: document.getElementById('exImage').value.trim(),
+    videoUrl: document.getElementById('exVideoUrl').value.trim()
+  };
+  try {
+    if (id) {
+      const updated = await API.exercises.update(id, data);
+      showToast(`"${updated.name}" actualizado`, 'edit');
+    } else {
+      data.id = uid();
+      const created = await API.exercises.add(data);
+      showToast(`"${created.name}" creado`, 'add_circle');
+    }
+    closeModal('exerciseModal');
+    navigate('exercises');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+});
+
+let deleteTarget = null;
+let deleteType = 'exercises';
+async function deleteItem(id, type) {
+  deleteTarget = id;
+  deleteType = type;
+  const names = { exercises: 'ejercicio', routines: 'rutina', clients: 'cliente' };
+  document.getElementById('deleteMsg').textContent = `¿Eliminar este ${names[type]||'elemento'}? Esta acción no se puede deshacer.`;
+  openModal('deleteModal');
+}
+document.getElementById('btnConfirmDelete').addEventListener('click', async function() {
+  if (!deleteTarget) return;
+  const type = deleteType;
+  const id = deleteTarget;
+  const labels = { exercises: 'ejercicio', routines: 'rutina', clients: 'cliente' };
+  try {
+    await API[type].delete(id);
+    showToast(`${labels[type]||'Elemento'} eliminado`, 'delete', 'text-error');
+    deleteTarget = null;
+    closeModal('deleteModal');
+    navigate(currentPage);
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+});
+
+async function viewExercise(id) {
+  try {
+    const ex = await API.exercises.get(id);
+    if (!ex) { showToast('Ejercicio no encontrado','error','text-error'); return; }
+    document.getElementById('viewModalTitle').textContent = ex.name;
+    const embedUrl = getEmbedUrl(ex.video_url);
+    document.getElementById('viewModalBody').innerHTML = `
+      ${embedUrl ? `<div class="relative w-full aspect-video rounded-lg overflow-hidden mb-sm bg-surface-container-high"><iframe class="absolute inset-0 w-full h-full" src="${embedUrl}" frameborder="0" allowfullscreen></iframe></div>` : ex.image_url ? `<img src="${ex.image_url}" alt="${ex.name}" class="w-full h-48 object-cover rounded-lg mb-sm"/>` : `<div class="w-full h-48 bg-surface-container-high rounded-lg flex items-center justify-center mb-sm"><span class="material-symbols-outlined text-[64px] text-outline-variant">fitness_center</span></div>`}
+      <div class="flex gap-xs mb-sm"><span class="category-badge ${catClass(ex.category)}">${ex.category}</span></div>
+      <p class="text-body-md text-on-surface mb-sm">${ex.description || 'Sin descripción.'}</p>
+      <div class="text-caption text-on-surface-variant"><span class="material-symbols-outlined text-[14px]">fitness_center</span> ${ex.muscles}</div>
+      <div class="text-caption text-on-surface-variant mt-xs">Creado ${timeAgo(ex.created_at)} · Actualizado ${timeAgo(ex.updated_at)}</div>
+      <div class="flex gap-sm mt-md">
+        <button onclick="closeModal('viewModal');setTimeout(()=>openExerciseModal('${id}'),200)" class="flex-1 bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all">Editar</button>
+        <button onclick="closeModal('viewModal');setTimeout(()=>deleteItem('${id}','exercises'),200)" class="flex-1 border border-error/30 text-error py-2 rounded-lg font-bold text-label-md hover:bg-error-container/20 transition-all">Eliminar</button>
+      </div>`;
+    openModal('viewModal');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+}
+
+// ====================================================================
+// ROUTINES
+// ====================================================================
+async function renderRoutines() {
+  const [rt, ex] = await Promise.all([API.routines.all(), API.exercises.all()]);
+  const exMap = {}; ex.forEach(e => { exMap[e.id] = e });
+  if (rt.length === 0) {
+    return `
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-sm">
+        <div><h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Creador de Rutinas</h2><p class="text-on-surface-variant font-body-md">Diseña y gestiona programas de entrenamiento estructurados.</p></div>
+        <button onclick="openRoutineModal()" class="bg-primary-fixed text-on-primary-fixed px-lg py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:scale-105 transition-transform max-md:w-full max-md:justify-center"><span class="material-symbols-outlined">add</span> Nueva Rutina</button>
+      </div>
+      <div class="tonal-elevation-1 rounded-xl p-lg text-center">
+        <div class="empty-state-icon mx-auto mb-sm"><span class="material-symbols-outlined text-on-surface-variant">edit_note</span></div>
+        <h3 class="font-headline-md text-[18px] text-on-surface mb-xs">Sin rutinas todavía</h3>
+        <p class="text-caption text-on-surface-variant">Crea tu primera rutina combinando ejercicios de la biblioteca.</p>
+      </div>`;
+  }
+  return `
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-sm">
+      <div><h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Creador de Rutinas</h2><p class="text-on-surface-variant font-body-md">Diseña y gestiona programas de entrenamiento estructurados.</p></div>
+      <button onclick="openRoutineModal()" class="bg-primary-fixed text-on-primary-fixed px-lg py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:scale-105 transition-transform max-md:w-full max-md:justify-center"><span class="material-symbols-outlined">add</span> Nueva Rutina</button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md pb-xl">
+      ${rt.map(r => {
+        const exCount = (r.exercises||[]).length;
+        const exNames = (r.exercises||[]).slice(0,3).map(se => exMap[se.exercise_id]?.name || 'Ejercicio').join(', ');
+        return `
+          <div class="tonal-elevation-1 rounded-xl overflow-hidden group hover:border-primary-fixed transition-all p-md">
+            <div class="flex justify-between items-start mb-sm">
+              <h3 class="font-headline-md text-[18px] text-on-surface">${r.name}</h3>
+              <span class="category-badge ${catClass(r.category)}">${r.category||'General'}</span>
+            </div>
+            <p class="text-caption text-on-surface-variant mb-sm">${exCount} ejercicio${exCount!==1?'s':''} · ${exNames}${exCount>3 ? '...' : ''}</p>
+            <div class="flex justify-between items-center pt-xs border-t border-outline-variant/30">
+              <span class="text-caption text-on-surface-variant">${timeAgo(r.updated_at)}</span>
+              <div class="flex gap-sm">
+                <button onclick="openRoutineModal('${r.id}')" class="text-primary-fixed hover:underline text-label-md font-bold">Editar</button>
+                <button onclick="deleteItem('${r.id}','routines')" class="text-error hover:underline text-label-md font-bold">Eliminar</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ====================================================================
+// ROUTINE MODAL
+// ====================================================================
+let routineExercises = [];
+
+async function openRoutineModal(id) {
+  routineExercises = [];
+  const title = document.getElementById('routineModalTitle');
+  const form = document.getElementById('routineForm');
+  form.reset();
+  document.getElementById('routineId').value = '';
+  title.textContent = 'Nueva Rutina';
+  if (id) {
+    title.textContent = 'Cargando...';
+    openModal('routineModal');
+    try {
+      const rt = await API.routines.get(id);
+      if (!rt) { closeModal('routineModal'); showToast('Rutina no encontrada','error','text-error'); return; }
+      title.textContent = 'Editar Rutina';
+      document.getElementById('routineId').value = id;
+      document.getElementById('rtName').value = rt.name;
+      document.getElementById('rtCategory').value = rt.category || '';
+      routineExercises = (rt.exercises||[]).map(e => ({ exerciseId: e.exercise_id, sets: e.sets || 3, reps: e.reps || '10-12', rest: e.rest || '60s' }));
+      await populateRoutineForm();
+    } catch (e) {
+      closeModal('routineModal');
+      showToast('Error: ' + e.message, 'error', 'text-error');
+    }
+    return;
+  }
+  openModal('routineModal');
+  await populateRoutineForm();
+}
+
+async function populateRoutineForm() {
+  await renderRoutineExerciseSelector();
+  renderRoutineExerciseList();
+}
+
+async function renderRoutineExerciseSelector() {
+  const container = document.getElementById('exerciseSelector');
+  const ex = await API.exercises.all();
+  const selectedIds = new Set(routineExercises.map(e => e.exerciseId));
+  container.innerHTML = ex.map(e => `
+    <button type="button" data-exid="${e.id}" onclick="toggleRoutineExercise('${e.id}')" class="px-sm py-xs rounded-full text-caption font-bold transition-all ${selectedIds.has(e.id)?'bg-primary-fixed/10 text-primary-fixed border border-primary-fixed/20':'bg-surface-container-high text-on-surface-variant hover:bg-surface-container'}">${e.name}</button>
+  `).join('');
+}
+
+async function toggleRoutineExercise(id) {
+  const idx = routineExercises.findIndex(e => e.exerciseId === id);
+  if (idx > -1) routineExercises.splice(idx, 1);
+  else routineExercises.push({ exerciseId: id, sets: 3, reps: '10-12', rest: '60s' });
+  await renderRoutineExerciseSelector();
+  renderRoutineExerciseList();
+}
+
+function renderRoutineExerciseList() {
+  const container = document.getElementById('routineExerciseList');
+  const allEx = []; /* will be populated by fetch in renderRoutineExerciseSelector */
+  if (routineExercises.length === 0) {
+    container.innerHTML = '<p class="text-caption text-on-surface-variant text-center py-md">Selecciona ejercicios arriba para agregarlos a la rutina.</p>';
+    return;
+  }
+  // Get exercise names via a cached fetch - we already have them from the selector
+  API.exercises.all().then(ex => {
+    const exMap = {}; ex.forEach(e => { exMap[e.id] = e });
+    container.innerHTML = routineExercises.map((re, i) => {
+      const e = exMap[re.exerciseId];
+      return `
+        <div class="flex items-center gap-sm bg-surface-container-low rounded-lg px-sm py-xs group/ex" data-index="${i}">
+          <span class="material-symbols-outlined text-on-surface-variant drag-handle text-[18px]">drag_indicator</span>
+          <span class="flex-1 text-body-md text-on-surface">${e?.name || 'Desconocido'}</span>
+          <input type="number" value="${re.sets}" min="1" max="20" onchange="routineExercises[${i}].sets=this.value" class="w-14 bg-surface-container border border-outline-variant rounded px-2 py-1 text-caption text-center focus:outline-none focus:border-primary-fixed" placeholder="Sets"/>
+          <input value="${re.reps}" onchange="routineExercises[${i}].reps=this.value" class="w-16 bg-surface-container border border-outline-variant rounded px-2 py-1 text-caption text-center focus:outline-none focus:border-primary-fixed" placeholder="Reps"/>
+          <input value="${re.rest}" onchange="routineExercises[${i}].rest=this.value" class="w-16 bg-surface-container border border-outline-variant rounded px-2 py-1 text-caption text-center focus:outline-none focus:border-primary-fixed" placeholder="Rest"/>
+          <button type="button" onclick="removeRoutineExercise(${i})" class="text-on-surface-variant hover:text-error transition-colors ml-xs opacity-0 group-hover/ex:opacity-100"><span class="material-symbols-outlined text-[18px]">close</span></button>
+        </div>`;
+    }).join('');
+  });
+}
+
+function removeRoutineExercise(idx) {
+  routineExercises.splice(idx, 1);
+  renderRoutineExerciseList();
+  renderRoutineExerciseSelector();
+}
+
+document.getElementById('routineForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const id = document.getElementById('routineId').value;
+  const data = {
+    name: document.getElementById('rtName').value.trim(),
+    category: document.getElementById('rtCategory').value,
+    exercises: routineExercises
+  };
+  if (routineExercises.length === 0) { showToast('Agrega al menos un ejercicio','warning','text-error'); return; }
+  try {
+    if (id) {
+      const updated = await API.routines.update(id, data);
+      showToast(`"${updated.name}" actualizada`, 'edit');
+    } else {
+      data.id = uid();
+      const created = await API.routines.add(data);
+      showToast(`"${created.name}" creada`, 'add_circle');
+    }
+    closeModal('routineModal');
+    navigate('routines');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+});
+
+// ====================================================================
+// WEEKLY PLANNER
+// ====================================================================
+let weekOffset = 0;
+let weeklyClientId = null;
+let weeklyClientSearch = '';
+const DAY_NAMES = ['LUN', 'MAR', 'MIE', 'JUE', 'VIE', 'SAB', 'DOM'];
+const WEEK_DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+function getWeekDays(offset) {
+  const now = new Date();
+  const jsDay = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((jsDay + 6) % 7) + offset * 7);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
+
+function isToday(d) {
+  const now = new Date();
+  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+}
+
+async function renderWeekly() {
+  const [clients, routines] = await Promise.all([API.clients.all(), API.routines.all()]);
+  if (clients.length === 0) {
+    return `
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-sm">
+        <div><h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Planilla Semanal</h2><p class="text-on-surface-variant font-body-md">Organiza rutinas por cliente, d&iacute;a por d&iacute;a.</p></div>
+      </div>
+      <div class="tonal-elevation-1 rounded-xl p-lg text-center">
+        <div class="empty-state-icon mx-auto mb-sm"><span class="material-symbols-outlined text-on-surface-variant">group</span></div>
+        <h3 class="font-headline-md text-[18px] text-on-surface mb-xs">Sin clientes registrados</h3>
+        <p class="text-caption text-on-surface-variant">Agrega un cliente primero para asignarle rutinas semanales.</p>
+      </div>`;
+  }
+  if (!weeklyClientId || !clients.find(c => c.id === weeklyClientId)) weeklyClientId = clients[0].id;
+  const client = clients.find(c => c.id === weeklyClientId);
+  const schedule = await API.weeklySchedule.get(weeklyClientId);
+  const rtMap = {}; routines.forEach(r => { rtMap[r.id] = r });
+  const schedMap = {};
+  schedule.forEach(s => { schedMap[s.day_of_week] = s });
+  const days = getWeekDays(weekOffset);
+  const weekStart = days[0];
+  const weekEnd = days[6];
+
+  return `
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-sm">
+      <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Planilla Semanal</h2>
+        <p class="text-on-surface-variant font-body-md">Organiza rutinas por cliente, d&iacute;a por d&iacute;a.</p>
+      </div>
+      <div class="flex items-center gap-sm flex-wrap justify-center md:justify-start">
+        <button onclick="weekOffset--;navigate('weekly')" class="p-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-primary-fixed hover:border-primary-fixed transition-all"><span class="material-symbols-outlined">chevron_left</span></button>
+        <span class="font-label-md text-on-surface min-w-0 md:min-w-[180px] text-center text-sm md:text-base">${formatDate(weekStart)} — ${formatDate(weekEnd)}</span>
+        <button onclick="weekOffset++;navigate('weekly')" class="p-2 border border-outline-variant rounded-lg text-on-surface-variant hover:text-primary-fixed hover:border-primary-fixed transition-all"><span class="material-symbols-outlined">chevron_right</span></button>
+        <button onclick="weekOffset=0;navigate('weekly')" class="px-sm py-1 border border-outline-variant rounded-lg text-caption text-on-surface-variant hover:text-primary-fixed hover:border-primary-fixed transition-all font-bold">Hoy</button>
+      </div>
+    </div>
+    <div class="mb-md space-y-sm">
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined text-on-surface-variant">group</span>
+        <span class="font-label-md text-on-surface-variant">Cliente:</span>
+        <div class="relative flex-1 max-w-xs">
+          <span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+          <input type="text" id="weeklyClientSearch" value="${weeklyClientSearch}" oninput="weeklyClientSearch=this.value;navigate('weekly')" placeholder="Buscar cliente..." class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-1 pl-8 pr-3 text-body-md text-sm focus:outline-none focus:border-primary-fixed"/>
+        </div>
+        <span class="text-caption text-on-surface-variant">${clients.length} cliente${clients.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="flex flex-wrap gap-xs">
+        ${(() => {
+          const filtered = clients.filter(c => !weeklyClientSearch || c.name.toLowerCase().includes(weeklyClientSearch.toLowerCase()) || (c.email && c.email.toLowerCase().includes(weeklyClientSearch.toLowerCase())));
+          const selected = clients.find(c => c.id === weeklyClientId);
+          if (selected && !filtered.find(c => c.id === weeklyClientId)) filtered.unshift(selected);
+          if (filtered.length === 0) return '<span class="text-caption text-on-surface-variant">Sin resultados</span>';
+          return filtered.map(c => `
+            <button onclick="weeklyClientId='${c.id}';weeklyClientSearch='';document.getElementById('weeklyClientSearch').value='';navigate('weekly')" class="px-sm py-1 rounded-lg text-caption font-bold transition-all ${c.id === weeklyClientId ? 'bg-primary-fixed text-on-primary-fixed' : 'bg-surface-container-high text-on-surface-variant hover:text-primary-fixed hover:bg-surface-container'}">${c.name}</button>
+          `).join('');
+        })()}
+      </div>
+    </div>
+    <div class="flex gap-sm overflow-x-auto pb-xl snap-x snap-mandatory md:grid md:grid-cols-7 md:overflow-visible md:snap-none custom-scrollbar">
+      ${days.map((d, i) => {
+        const today = isToday(d);
+        const s = schedMap[i];
+        const rt = s ? rtMap[s.routine_id] : null;
+        return `
+          <div class="day-cell min-w-[160px] snap-start md:min-w-0 tonal-elevation-1 rounded-xl p-sm flex flex-col ${today ? 'day-today' : ''}">
+            <div class="text-center border-b border-outline-variant/30 pb-xs mb-xs">
+              <div class="day-label text-caption font-bold text-on-surface-variant uppercase tracking-wider">${DAY_NAMES[i]}</div>
+              <div class="day-number font-headline-md text-[20px] text-on-surface font-bold">${d.getDate()}</div>
+              <div class="text-caption text-on-surface-variant text-[10px]">${d.toLocaleDateString('es-ES', { month: 'short' })}</div>
+            </div>
+            <div class="flex-1 flex flex-col">
+              ${rt ? `
+                <div class="bg-primary-fixed/10 border border-primary-fixed/20 rounded-lg p-xs mb-xs text-center">
+                  <div class="text-body-md text-primary-fixed font-bold text-[13px] leading-tight truncate">${rt.name}</div>
+                  <div class="text-caption text-on-surface-variant text-[10px]">${rt.category || 'General'}</div>
+                </div>
+              ` : `
+                <div class="flex-1 flex items-center justify-center">
+                  <span class="text-caption text-on-surface-variant/40">—</span>
+                </div>
+              `}
+            </div>
+            <div class="flex gap-xs mt-auto pt-xs border-t border-outline-variant/20">
+              <button onclick="openDayRoutineModal(${i})" class="flex-1 text-[11px] py-1 rounded font-bold text-label-md transition-all ${rt ? 'bg-primary-fixed/10 text-primary-fixed hover:bg-primary-fixed/20' : 'border border-dashed border-outline-variant text-on-surface-variant hover:text-primary-fixed hover:border-primary-fixed'}">${rt ? 'Cambiar' : 'Asignar'}</button>
+              ${rt ? `<button onclick="removeDayRoutine(${i})" class="text-[11px] px-1 rounded text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[14px]">close</span></button>` : ''}
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+async function openDayRoutineModal(dayOfWeek) {
+  const routines = await API.routines.all();
+  const weekDays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  const opts = routines.map(r => `<option value="${r.id}">${r.name} (${r.category||'General'})</option>`).join('');
+  if (!opts) { showToast('No hay rutinas disponibles. Crea una primero.', 'warning', 'text-error'); return; }
+  openInfoModal(
+    'Asignar rutina — ' + weekDays[dayOfWeek],
+    `<p class="text-caption text-on-surface-variant mb-sm">Selecciona la rutina para este d&iacute;a:</p>
+     <select id="dayRoutineSelect" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed mb-sm">${opts}</select>
+     <button onclick="confirmDayRoutine(${dayOfWeek})" class="w-full bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all">Guardar</button>`
+  );
+}
+
+async function confirmDayRoutine(dayOfWeek) {
+  const select = document.getElementById('dayRoutineSelect');
+  if (!select) { closeModal('infoModal'); return; }
+  const routineId = select.value;
+  if (!routineId) { showToast('Selecciona una rutina', 'warning', 'text-error'); return; }
+  try {
+    await API.weeklySchedule.set(weeklyClientId, dayOfWeek, routineId);
+    closeModal('infoModal');
+    showToast('Rutina asignada', 'check_circle');
+    navigate('weekly');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+}
+
+async function removeDayRoutine(dayOfWeek) {
+  try {
+    await API.weeklySchedule.remove(weeklyClientId, dayOfWeek);
+    showToast('Rutina removida', 'delete', 'text-error');
+    navigate('weekly');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+}
+
+// ====================================================================
+// CLIENTS
+// ====================================================================
+let clientSearch = '';
+
+async function renderClients() {
+  const [cl, rt] = await Promise.all([API.clients.all(), API.routines.all()]);
+  const rtMap = {}; rt.forEach(r => { rtMap[r.id] = r });
+  let filtered = cl;
+  if (clientSearch) filtered = cl.filter(c => c.name.toLowerCase().includes(clientSearch) || c.email.toLowerCase().includes(clientSearch));
+  if (filtered.length === 0) {
+    return `
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-sm">
+        <div><h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Lista de Clientes</h2><p class="text-on-surface-variant font-body-md">Administra tus clientes y asigna rutinas personalizadas.</p></div>
+        <button onclick="openClientModal()" class="bg-primary-fixed text-on-primary-fixed px-lg py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:scale-105 transition-transform max-md:w-full max-md:justify-center"><span class="material-symbols-outlined">person_add</span> Nuevo Cliente</button>
+      </div>
+      <div class="tonal-elevation-1 rounded-xl p-lg text-center">
+        <div class="empty-state-icon mx-auto mb-sm"><span class="material-symbols-outlined text-on-surface-variant">group</span></div>
+        <h3 class="font-headline-md text-[18px] text-on-surface mb-xs">${cl.length === 0 ? 'Sin clientes registrados' : 'Ningún cliente coincide'}</h3>
+        <p class="text-caption text-on-surface-variant">${cl.length === 0 ? 'Agrega tu primer cliente para comenzar.' : 'Intenta con otro término de búsqueda.'}</p>
+      </div>`;
+  }
+  return `
+    <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-sm">
+      <div><h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Lista de Clientes</h2><p class="text-on-surface-variant font-body-md">Administra tus clientes y asigna rutinas personalizadas.</p></div>
+      <button onclick="openClientModal()" class="bg-primary-fixed text-on-primary-fixed px-lg py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:scale-105 transition-transform max-md:w-full max-md:justify-center"><span class="material-symbols-outlined">person_add</span> Nuevo Cliente</button>
+    </div>
+    <div class="space-y-xs pb-xl">
+      ${filtered.map(c => {
+        const rtNames = (c.assignedRoutines||[]).map(id => rtMap[id]?.name || 'Desconocida').join(', ');
+        const today = new Date().toISOString().slice(0, 10);
+        const pagoOk = c.pago_fin && c.pago_fin >= today;
+        const pagoVence = c.pago_fin ? Math.ceil((new Date(c.pago_fin) - new Date()) / 86400000) : 0;
+        const pagoColor = !c.pago_fin ? '' : pagoOk ? (pagoVence <= 7 ? 'text-secondary' : 'text-success') : 'text-error';
+        return `
+          <div class="tonal-elevation-1 rounded-xl p-sm flex flex-col md:flex-row md:items-center gap-sm hover:border-primary-fixed transition-all">
+            <div class="flex items-center gap-sm flex-1 min-w-0">
+              <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-surface-variant">person</span></div>
+              <div class="min-w-0 flex-1">
+                <div class="font-headline-md text-[16px] text-on-surface truncate">${c.name} ${c.pago_fin ? `<span class="${pagoColor} text-[11px] font-bold">${pagoOk ? (pagoVence <= 7 ? '· Vence en '+pagoVence+'d' : '· Activo') : '· Vencido'}</span>` : ''}</div>
+                <div class="text-caption text-on-surface-variant truncate">${c.email}${c.phone ? ' · '+c.phone : ''}</div>
+                ${rtNames ? `<div class="text-caption text-primary-fixed truncate">${rtNames}</div>` : `<div class="text-caption text-on-surface-variant">Sin rutina asignada</div>`}
+                ${c.pago_inicio ? `<div class="text-caption ${pagoColor}">Abono: ${c.pago_inicio} → ${c.pago_fin || '—'}</div>` : ''}
+                <div class="flex items-center gap-xs text-caption"><span class="material-symbols-outlined text-[12px] text-outline-variant">lock</span><span class="font-mono text-on-surface-variant">${c.password || '—'}</span><span onclick="event.stopPropagation();copyText('${c.password || ''}')" class="material-symbols-outlined text-[14px] text-on-surface-variant hover:text-primary-fixed cursor-pointer">content_copy</span></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-xs flex-wrap justify-start md:justify-end border-t md:border-t-0 border-outline-variant/20 pt-sm md:pt-0">
+              <a href="/app?client=${c.id}" target="_blank" class="px-sm py-1 bg-primary-fixed/10 text-primary-fixed rounded-lg text-caption font-bold hover:bg-primary-fixed/20 transition-colors" title="Ver como cliente"><span class="material-symbols-outlined text-[16px]">open_in_new</span></a>
+              <button onclick="weeklyClientId='${c.id}';navigate('weekly')" class="px-sm py-1 bg-primary-fixed/10 text-primary-fixed rounded-lg text-caption font-bold hover:bg-primary-fixed/20 transition-colors" title="Planilla semanal"><span class="material-symbols-outlined text-[16px]">calendar_month</span></button>
+              <button onclick="openAssignModal('${c.id}')" class="px-sm py-1 bg-primary-fixed/10 text-primary-fixed rounded-lg text-caption font-bold hover:bg-primary-fixed/20 transition-colors"><span class="material-symbols-outlined text-[16px]">assignment</span></button>
+              <button onclick="openClientModal('${c.id}')" class="px-sm py-1 text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+              <button onclick="deleteItem('${c.id}','clients')" class="px-sm py-1 text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+async function openClientModal(id) {
+  const title = document.getElementById('clientModalTitle');
+  const form = document.getElementById('clientForm');
+  form.reset();
+  document.getElementById('clientId').value = '';
+  document.getElementById('clPassword').value = generatePassword();
+  title.textContent = 'Nuevo Cliente';
+  if (id) {
+    title.textContent = 'Cargando...';
+    openModal('clientModal');
+    try {
+      const c = await API.clients.get(id);
+      if (!c) { closeModal('clientModal'); showToast('Cliente no encontrado','error','text-error'); return; }
+      title.textContent = 'Editar Cliente';
+      document.getElementById('clientId').value = id;
+      document.getElementById('clName').value = c.name;
+      document.getElementById('clEmail').value = c.email || '';
+      document.getElementById('clPhone').value = c.phone || '';
+      document.getElementById('clNotes').value = c.notes || '';
+      document.getElementById('clStreak').value = c.streak || 0;
+      document.getElementById('clPagoInicio').value = c.pago_inicio || '';
+      document.getElementById('clPagoFin').value = c.pago_fin || '';
+      document.getElementById('clPassword').value = c.password || '';
+    } catch (e) {
+      closeModal('clientModal');
+      showToast('Error: ' + e.message, 'error', 'text-error');
+    }
+    return;
+  }
+  openModal('clientModal');
+}
+
+document.getElementById('clientForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const id = document.getElementById('clientId').value;
+  const data = {
+    name: document.getElementById('clName').value.trim(),
+    email: document.getElementById('clEmail').value.trim(),
+    phone: document.getElementById('clPhone').value.trim(),
+    notes: document.getElementById('clNotes').value.trim(),
+    streak: parseInt(document.getElementById('clStreak').value) || 0,
+    pago_inicio: document.getElementById('clPagoInicio').value,
+    pago_fin: document.getElementById('clPagoFin').value,
+    password: document.getElementById('clPassword').value
+  };
+  try {
+    if (id) {
+      const existing = await API.clients.get(id);
+      data.assignedRoutines = (existing && existing.assignedRoutines) || [];
+      const updated = await API.clients.update(id, data);
+      showToast(`"${updated.name}" actualizado`, 'edit');
+    } else {
+      data.id = uid();
+      data.assignedRoutines = [];
+      const created = await API.clients.add(data);
+      showToast(`"${created.name}" registrado`, 'person_add');
+    }
+    closeModal('clientModal');
+    navigate('clients');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+});
+
+// ====================================================================
+// ASSIGN ROUTINE
+// ====================================================================
+let assignClientId = null;
+
+async function openAssignModal(clientId) {
+  assignClientId = clientId;
+  try {
+    const [c, rt] = await Promise.all([API.clients.get(clientId), API.routines.all()]);
+    if (!c) { showToast('Cliente no encontrado','error','text-error'); return; }
+    document.getElementById('assignClientInfo').textContent = `Asignar rutina a: ${c.name}`;
+    const select = document.getElementById('assignRoutineSelect');
+    const current = new Set(c.assignedRoutines || []);
+    const available = rt.filter(r => !current.has(r.id));
+    select.innerHTML = available.length > 0
+      ? `<option value="">Seleccionar rutina...</option>` + available.map(r => `<option value="${r.id}">${r.name} (${r.category||'General'})</option>`).join('')
+      : '<option value="">Todas las rutinas ya están asignadas</option>';
+    openModal('assignModal');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+}
+
+document.getElementById('btnConfirmAssign').addEventListener('click', async function() {
+  const rtId = document.getElementById('assignRoutineSelect').value;
+  if (!rtId || !assignClientId) return;
+  try {
+    const cl = await API.clients.get(assignClientId);
+    cl.assignedRoutines = cl.assignedRoutines || [];
+    cl.assignedRoutines.push(rtId);
+    await API.clients.update(assignClientId, { assignedRoutines: cl.assignedRoutines });
+    const rt = await API.routines.get(rtId);
+    showToast(`Rutina "${rt?.name}" asignada a ${cl.name}`, 'assignment');
+    closeModal('assignModal');
+    navigate('clients');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+});
+
+// ====================================================================
+// INFO MODAL
+// ====================================================================
+function openInfoModal(title, body) {
+  document.getElementById('infoModalTitle').textContent = title;
+  document.getElementById('infoModalBody').innerHTML = body;
+  openModal('infoModal');
+}
+
+// ====================================================================
+// SETTINGS
+// ====================================================================
+async function renderSettings() {
+  let info;
+  try { info = await API.request('/api/backup/info'); } catch { info = { size: 0, exercises: 0, routines: 0, clients: 0, backups: 0, lastBackup: null }; }
+  let backups;
+  try { backups = await API.request('/api/backup/history'); } catch { backups = []; }
+
+  function fmtSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+  function fmtDate(iso) {
+    if (!iso) return 'Nunca';
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  return `
+<div class="max-w-3xl mx-auto space-y-lg pb-xl">
+  <div>
+    <h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Configuraci&oacute;n</h2>
+    <p class="text-on-surface-variant font-body-md">Administra el sistema y protege tus datos.</p>
+  </div>
+
+  <!-- Database Info -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-primary-fixed">database</span> Estado de la Base de Datos
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-sm text-caption">
+      <div class="bg-surface-container-low rounded-lg p-sm text-center">
+        <div class="text-primary-fixed font-bold text-[20px] font-display-lg">${info.exercises}</div>
+        <div class="text-on-surface-variant">Ejercicios</div>
+      </div>
+      <div class="bg-surface-container-low rounded-lg p-sm text-center">
+        <div class="text-primary-fixed font-bold text-[20px] font-display-lg">${info.routines}</div>
+        <div class="text-on-surface-variant">Rutinas</div>
+      </div>
+      <div class="bg-surface-container-low rounded-lg p-sm text-center">
+        <div class="text-primary-fixed font-bold text-[20px] font-display-lg">${info.clients}</div>
+        <div class="text-on-surface-variant">Clientes</div>
+      </div>
+      <div class="bg-surface-container-low rounded-lg p-sm text-center">
+        <div class="text-primary-fixed font-bold text-[20px] font-display-lg">${fmtSize(info.size)}</div>
+        <div class="text-on-surface-variant">Tama&ntilde;o</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Backup Actions -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-primary-fixed">backup</span> Respaldo y Restauraci&oacute;n
+    </h3>
+    <p class="text-caption text-on-surface-variant mb-md">&Uacute;ltimo respaldo: ${fmtDate(info.lastBackup)} &middot; ${info.backups} respaldo${info.backups!==1?'s':''} disponible${info.backups!==1?'s':''}</p>
+    <div class="flex flex-wrap gap-sm">
+      <button onclick="createBackup()" class="bg-primary-fixed text-on-primary-fixed px-md py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:brightness-110 transition-all">
+        <span class="material-symbols-outlined">backup</span> Crear Respaldo
+      </button>
+      <button onclick="downloadBackup()" class="border border-outline-variant text-on-surface px-md py-sm rounded-lg font-bold text-label-md flex items-center gap-xs hover:bg-surface-container transition-all">
+        <span class="material-symbols-outlined">download</span> Descargar BD
+      </button>
+      <label class="border border-outline-variant text-on-surface px-md py-sm rounded-lg font-bold text-label-md flex items-center gap-xs hover:bg-surface-container transition-all cursor-pointer">
+        <span class="material-symbols-outlined">upload</span> Restaurar Respaldo
+        <input type="file" accept=".db" onchange="restoreBackup(this)" class="hidden"/>
+      </label>
+    </div>
+  </div>
+
+  <!-- Backup History -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-on-surface-variant">history</span> Historial de Respaldos
+    </h3>
+    ${backups.length === 0 ? `
+      <div class="text-caption text-on-surface-variant text-center py-md">No hay respaldos guardados. Crea tu primer respaldo para proteger tus datos.</div>
+    ` : `
+      <div class="space-y-xs max-h-64 overflow-y-auto custom-scrollbar">
+        ${backups.map((b, i) => `
+          <div class="flex items-center gap-sm bg-surface-container-low rounded-lg px-sm py-xs">
+            <span class="material-symbols-outlined text-outline-variant text-[18px]">storage</span>
+            <div class="flex-1 min-w-0">
+              <div class="text-body-md text-on-surface truncate">${b.name}</div>
+              <div class="text-caption text-on-surface-variant">${fmtDate(b.timestamp)} &middot; ${fmtSize(b.size)}</div>
+            </div>
+            <div class="flex gap-xs">
+              <button onclick="downloadBackupFile('${b.name}')" class="p-1 text-on-surface-variant hover:text-primary-fixed transition-colors" title="Descargar"><span class="material-symbols-outlined text-[18px]">download</span></button>
+              <button onclick="deleteBackupFile('${b.name}')" class="p-1 text-on-surface-variant hover:text-error transition-colors" title="Eliminar"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `}
+  </div>
+
+  <!-- GitHub -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-primary-fixed">code</span> Git &amp; GitHub
+    </h3>
+    <div id="gitStatusDisplay" class="text-caption text-on-surface-variant mb-md">
+      <span class="inline-flex items-center gap-xs"><span class="loading-spinner w-4 h-4"></span> Verificando...</span>
+    </div>
+    <div id="gitRepoInfo" class="hidden mb-md bg-surface-container-low rounded-lg p-sm flex items-center gap-sm">
+      <span class="material-symbols-outlined text-primary-fixed">inventory_2</span>
+      <div class="flex-1">
+        <div id="gitRepoNameDisplay" class="text-body-md text-on-surface font-bold"></div>
+        <div id="gitRepoUrlDisplay" class="text-caption text-on-surface-variant truncate"></div>
+      </div>
+      <span id="gitSyncStatus" class="px-sm py-xs rounded-full text-caption font-bold"></span>
+    </div>
+    <div class="space-y-sm">
+      <div class="flex flex-wrap gap-sm items-center">
+        <button onclick="gitRefreshStatus()" class="border border-outline-variant text-on-surface px-sm py-xs rounded-lg text-label-md flex items-center gap-xs hover:bg-surface-container transition-all">
+          <span class="material-symbols-outlined text-[16px]">refresh</span> Estado
+        </button>
+        <button onclick="gitInit()" class="border border-outline-variant text-on-surface px-sm py-xs rounded-lg text-label-md flex items-center gap-xs hover:bg-surface-container transition-all">
+          <span class="material-symbols-outlined text-[16px]">folder</span> Init
+        </button>
+        <button onclick="gitCommit()" class="border border-outline-variant text-on-surface px-sm py-xs rounded-lg text-label-md flex items-center gap-xs hover:bg-surface-container transition-all">
+          <span class="material-symbols-outlined text-[16px]">save</span> Commit
+        </button>
+        <button onclick="gitPush()" class="bg-primary-fixed text-on-primary-fixed px-md py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:brightness-110 transition-all">
+          <span class="material-symbols-outlined">publish</span> Sincronizar (Push)
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-sm items-end">
+        <div class="flex-1 min-w-[200px]">
+          <label class="text-caption text-on-surface-variant block mb-xs">URL del repositorio (ej: https://github.com/usuario/repo.git)</label>
+          <input id="gitRepoUrl" type="text" class="w-full bg-surface-container-high text-on-surface rounded-lg px-sm py-xs border border-outline-variant text-body-md" placeholder="https://github.com/tu-usuario/tu-repo.git"/>
+        </div>
+        <div class="flex-1 min-w-[150px]">
+          <label class="text-caption text-on-surface-variant block mb-xs">Token GitHub (opcional)</label>
+          <input id="gitToken" type="password" class="w-full bg-surface-container-high text-on-surface rounded-lg px-sm py-xs border border-outline-variant text-body-md" placeholder="ghp_... o dejar vac&iacute;o"/>
+        </div>
+        <button onclick="gitSetRemote()" class="border border-outline-variant text-on-surface px-sm py-xs rounded-lg text-label-md flex items-center gap-xs hover:bg-surface-container transition-all self-end">
+          <span class="material-symbols-outlined text-[16px]">link</span> Vincular Remote
+        </button>
+      </div>
+    </div>
+    <div id="gitOutput" class="mt-md bg-surface-container-low rounded-lg p-sm text-caption font-mono text-on-surface-variant max-h-48 overflow-y-auto custom-scrollbar whitespace-pre-wrap" style="display:none"></div>
+  </div>
+
+  <!-- About -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-on-surface-variant">info</span> Acerca de
+    </h3>
+    <div class="text-caption text-on-surface-variant space-y-xs">
+      <p><strong class="text-on-surface">Palmeras Gym HQ</strong> v1.0.0</p>
+      <p>Sistema de Gesti&oacute;n de Rutinas de Gimnasio</p>
+      <p>Base de datos: SQLite (sql.js) &middot; Motor: Node.js &middot; Interfaz: Tailwind CSS</p>
+      <p class="pt-xs">Los respaldos se guardan en la carpeta <code class="text-primary-fixed">backups/</code> del servidor.</p>
+    </div>
+  </div>
+</div>`;
+}
+
+// Backup API helpers
+async function createBackup() {
+  if (previewMode) { showToast('No disponible en vista previa', 'info', 'text-on-surface-variant'); return; }
+  try {
+    const r = await API.request('/api/backup/create', { method: 'POST' });
+    showToast('Respaldo creado: ' + r.name, 'backup', 'text-primary-fixed');
+    navigate('settings');
+  } catch (e) { showToast('Error: ' + e.message, 'error', 'text-error'); }
+}
+
+async function downloadBackup() {
+  if (previewMode) { showToast('No disponible en vista previa', 'info', 'text-on-surface-variant'); return; }
+  try {
+    const res = await fetch('/api/backup/download');
+    if (!res.ok) throw new Error('Error al descargar');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'palmerasgym_' + new Date().toISOString().replace(/[:.]/g, '-') + '.db';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Base de datos descargada', 'download', 'text-primary-fixed');
+  } catch (e) { showToast('Error: ' + e.message, 'error', 'text-error'); }
+}
+
+async function restoreBackup(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.name.endsWith('.db')) {
+    showToast('Selecciona un archivo .db v&aacute;lido', 'warning', 'text-error');
+    input.value = '';
+    return;
+  }
+  if (!confirm('ADVERTENCIA: Esta acci&oacute;n reemplazar&aacute; TODOS los datos actuales.\n\nSe crear&aacute; un respaldo autom&aacute;tico antes de restaurar.\n\n&iquest;Continuar?')) {
+    input.value = '';
+    return;
+  }
+  try {
+    const formData = new FormData();
+    formData.append('backup', file);
+    const res = await fetch('/api/backup/restore', { method: 'POST', body: formData });
+    const r = await res.json();
+    if (!res.ok) throw new Error(r.error);
+    showToast('Base de datos restaurada correctamente. Respaldo previo: ' + r.autoBackup.name, 'restore', 'text-primary-fixed');
+    input.value = '';
+    navigate('settings');
+  } catch (e) {
+    showToast('Error al restaurar: ' + e.message, 'error', 'text-error');
+    input.value = '';
+  }
+}
+
+async function downloadBackupFile(name) {
+  try {
+    const res = await fetch('/api/backup/download');
+    if (!res.ok) throw new Error('Error al descargar');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) { showToast('Error: ' + e.message, 'error', 'text-error'); }
+}
+
+async function deleteBackupFile(name) {
+  if (!confirm('&iquest;Eliminar el respaldo "' + name + '"?')) return;
+  try {
+    await API.request('/api/backup/' + encodeURIComponent(name), { method: 'DELETE' });
+    showToast('Respaldo eliminado', 'delete', 'text-error');
+    navigate('settings');
+  } catch (e) { showToast('Error: ' + e.message, 'error', 'text-error'); }
+}
+
+// ====================================================================
+// GIT / GITHUB
+// ====================================================================
+function gitShowOutput(text) {
+  const el = document.getElementById('gitOutput');
+  el.style.display = 'block';
+  el.textContent += text + '\n';
+  el.scrollTop = el.scrollHeight;
+}
+function gitClearOutput() {
+  document.getElementById('gitOutput').style.display = 'none';
+  document.getElementById('gitOutput').textContent = '';
+}
+async function gitRefreshStatus() {
+  const el = document.getElementById('gitStatusDisplay');
+  el.innerHTML = '<span class="inline-flex items-center gap-xs"><span class="loading-spinner w-4 h-4"></span> Verificando...</span>';
+  const repoInfo = document.getElementById('gitRepoInfo');
+  repoInfo.classList.add('hidden');
+  try {
+    const r = await API.request('/api/git/status');
+    const parts = [];
+    if (!r.gitInstalled) parts.push('<span class="text-error">Git no instalado</span>');
+    else parts.push('<span class="text-success">Git instalado</span>');
+    if (r.isRepo) parts.push('<span class="text-success">Repositorio inicializado</span>');
+    else parts.push('<span class="text-on-surface-variant">Sin repositorio</span>');
+    if (r.branch) parts.push('Rama: <span class="text-primary-fixed">' + r.branch + '</span>');
+    if (r.remoteUrl) parts.push('Remote: <span class="text-secondary">' + r.remoteUrl + '</span>');
+    if (r.lastCommit) parts.push('&Uacute;ltimo commit: <span class="text-primary-fixed">' + r.lastCommit + '</span>');
+    if (r.status && r.status.length > 0) parts.push('Archivos modificados: <span class="text-secondary">' + r.status.length + '</span>');
+    el.innerHTML = parts.join(' &middot; ');
+
+    // Show repo info if remote is configured
+    if (r.remoteUrl) {
+      document.getElementById('gitRepoUrl').value = r.remoteUrl;
+      document.getElementById('gitRepoNameDisplay').textContent = r.repoName || r.remoteUrl.replace(/.*\/(.*?)\.git$/, '$1');
+      document.getElementById('gitRepoUrlDisplay').textContent = r.remoteUrl;
+      const statusEl = document.getElementById('gitSyncStatus');
+      if (r.status && r.status.length > 0) {
+        statusEl.textContent = 'SINCRONIZAR';
+        statusEl.className = 'px-sm py-xs rounded-full text-caption font-bold bg-secondary-container/20 text-secondary';
+      } else {
+        statusEl.textContent = 'SINCRONIZADO';
+        statusEl.className = 'px-sm py-xs rounded-full text-caption font-bold bg-primary-fixed/10 text-primary-fixed';
+      }
+      repoInfo.classList.remove('hidden');
+    }
+  } catch (e) {
+    if (previewMode) {
+      el.innerHTML = '<span class="text-on-surface-variant">︎Disponible solo con el servidor local (node server.js)</span>';
+    } else {
+      el.innerHTML = '<span class="text-error">Error: ' + e.message + '</span>';
+    }
+  }
+}
+async function gitInit() {
+  gitClearOutput();
+  try {
+    const r = await API.request('/api/git/init', { method: 'POST' });
+    gitShowOutput(r.output || 'git init OK');
+    if (r.success) await gitRefreshStatus();
+  } catch (e) { gitShowOutput('Error: ' + e.message); }
+}
+async function gitCommit() {
+  gitClearOutput();
+  try {
+    const r = await API.request('/api/git/commit', { method: 'POST', body: JSON.stringify({}) });
+    gitShowOutput(r.output || '');
+    if (r.success) await gitRefreshStatus();
+  } catch (e) { gitShowOutput('Error: ' + e.message); }
+}
+async function gitSetRemote() {
+  const repoUrl = document.getElementById('gitRepoUrl').value.trim();
+  if (!repoUrl) { showToast('Ingresa la URL del repositorio', 'warning', 'text-error'); return; }
+  gitClearOutput();
+  try {
+    const r = await API.request('/api/git/remote', { method: 'POST', body: JSON.stringify({ repoUrl }) });
+    gitShowOutput(r.output || '');
+    if (r.success) await gitRefreshStatus();
+  } catch (e) { gitShowOutput('Error: ' + e.message); }
+}
+async function gitPush() {
+  if (previewMode) { showToast('Usa el servidor local para sincronizar con GitHub', 'info', 'text-on-surface-variant'); return; }
+  const repoUrl = document.getElementById('gitRepoUrl').value.trim();
+  if (!repoUrl) { showToast('Ingresa la URL del repositorio', 'warning', 'text-error'); return; }
+  gitClearOutput();
+  try {
+    const token = document.getElementById('gitToken').value.trim();
+    const r = await API.request('/api/git/push', { method: 'POST', body: JSON.stringify({ repoUrl, token: token || undefined }) });
+    gitShowOutput(r.output || '');
+    if (r.success) await gitRefreshStatus();
+  } catch (e) { gitShowOutput('Error: ' + e.message); }
+}
+
+
+// ====================================================================
+// SEARCH
+// ====================================================================
+const searchInput = document.getElementById('globalSearch');
+searchInput.addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  if (currentPage === 'exercises') { exerciseSearch = q; navigate('exercises'); }
+  else if (currentPage === 'clients') { clientSearch = q; navigate('clients'); }
+});
+
+// ====================================================================
+// QUICK ROUTINE
+// ====================================================================
+document.getElementById('btnQuickRoutine').addEventListener('click', async function() {
+  try {
+    const ex = await API.exercises.all();
+    if (ex.length === 0) { showToast('No hay ejercicios para crear una rutina','warning','text-error'); return; }
+    routineExercises = [];
+    await openRoutineModal();
+    document.getElementById('rtName').value = 'Rutina Rápida ' + new Date().toLocaleDateString();
+    ex.slice(0,3).forEach(e => {
+      if (!routineExercises.find(re => re.exerciseId === e.id)) {
+        routineExercises.push({ exerciseId: e.id, sets: 3, reps: '10-12', rest: '60s' });
+      }
+    });
+    await populateRoutineForm();
+    showToast('Rutina rápida preparada', 'bolt');
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+});
+
+document.getElementById('btnCreateProgram').addEventListener('click', function() {
+  navigate('routines');
+  setTimeout(async () => {
+    routineExercises = [];
+    await openRoutineModal();
+    document.getElementById('rtName').value = 'Programa ' + new Date().toLocaleDateString();
+  }, 300);
+});
+
+// ====================================================================
+// NOTIFICATIONS / HISTORY
+// ====================================================================
+let notifCount = 0;
+document.getElementById('btnNotifications').addEventListener('click', function() {
+  const msgs = ['Cliente nuevo registrado', 'Rutina actualizada', 'Ejercicio creado', 'Meta alcanzada'];
+  showToast(msgs[notifCount % msgs.length], 'notifications', 'text-secondary-container');
+  notifCount++;
+});
+document.getElementById('btnHistory').addEventListener('click', function() {
+  showToast('Historial de actividad próximamente', 'history', 'text-on-surface-variant');
+});
+
+// ====================================================================
+// INIT
+// ====================================================================
+const initialPage = location.hash.replace('#','') || 'dashboard';
+navigate(initialPage);
+</script>
+</body>
+</html>

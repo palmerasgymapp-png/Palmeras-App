@@ -60,7 +60,7 @@ body { background: #000; color: #e4e2e1; font-family: 'Inter', sans-serif; -webk
       <div id="clientListSection">
         <p class="font-headline-md text-[18px] text-on-surface mb-sm text-center">Selecciona tu perfil</p>
         <div id="clientList" class="space-y-xs max-h-[50vh] md:max-h-64 overflow-y-auto custom-scrollbar"></div>
-        <p id="loginError" class="text-caption text-error text-center mt-sm hidden">No se pudieron cargar los clientes. Verifica que el servidor esté corriendo.</p>
+        <p id="loginError" class="text-caption text-error text-center mt-sm hidden">No se pudieron cargar los clientes.</p>
       </div>
       <div id="passwordSection" style="display:none">
         <p class="font-headline-md text-[18px] text-on-surface mb-sm text-center">Ingresa tu contrase&ntilde;a</p>
@@ -139,7 +139,6 @@ body { background: #000; color: #e4e2e1; font-family: 'Inter', sans-serif; -webk
 </div>
 
 <script>
-const API_BASE = '';
 const LS_KEY = 'vc_mobile_client';
 
 let currentClient = null;
@@ -160,12 +159,145 @@ function getEmbedUrl(url) {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
   return m ? `https://www.youtube.com/embed/${m[1]}` : url;
 }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6) }
+function getPreviewData(key) { return JSON.parse(localStorage.getItem('preview_' + key) || 'null'); }
+function setPreviewData(key, data) { localStorage.setItem('preview_' + key, JSON.stringify(data)); }
 
-// ── API ──
+// ── Mock data ──
+if (!getPreviewData('exercises')) setPreviewData('exercises', [
+  {id:'ex1',name:'Press Banca',category:'Fuerza',description:'Ejercicio de pecho con barra',image_url:null,video_url:'https://youtu.be/rT7DgCr-3pg',created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'ex2',name:'Sentadilla',category:'Fuerza',description:'Ejercicio de piernas con barra',image_url:null,video_url:'https://youtu.be/UaWn-NqWX2E',created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'ex3',name:'Dominadas',category:'Fuerza',description:'Ejercicio de espalda',image_url:null,video_url:'https://youtu.be/eGo4IYlbE5g',created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'ex4',name:'Peso Muerto',category:'Fuerza',description:'Ejercicio de cadena posterior',image_url:null,video_url:'https://youtu.be/opqjV1JLN5M',created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'ex5',name:'Press Militar',category:'Fuerza',description:'Ejercicio de hombros con barra',image_url:null,video_url:null,created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'ex6',name:'Remo con Barra',category:'Fuerza',description:'Ejercicio de espalda',image_url:null,video_url:'https://youtu.be/9efgcAjQe7E',created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'ex7',name:'Fondos en Paralelas',category:'Fuerza',description:'Ejercicio de tríceps y pecho',image_url:null,video_url:'https://youtu.be/2z8gxqNklD0',created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'ex8',name:'Curl de Bíceps',category:'Fuerza',description:'Ejercicio de brazos con mancuerna',image_url:null,video_url:'https://youtu.be/ykJmrZ5v0Oo',created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'}
+]);
+if (!getPreviewData('routines')) setPreviewData('routines', [
+  {id:'rt1',name:'Empuje',category:'Fuerza',exercises:[{exercise_id:'ex1',sets:4,reps:'8-10',rest:'90s',order:1},{exercise_id:'ex5',sets:3,reps:'10-12',rest:'60s',order:2},{exercise_id:'ex7',sets:3,reps:'12-15',rest:'60s',order:3}],created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'rt2',name:'Tirón',category:'Fuerza',exercises:[{exercise_id:'ex3',sets:4,reps:'8-10',rest:'90s',order:1},{exercise_id:'ex6',sets:3,reps:'10-12',rest:'60s',order:2},{exercise_id:'ex8',sets:3,reps:'12-15',rest:'60s',order:3}],created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
+  {id:'rt3',name:'Piernas',category:'Fuerza',exercises:[{exercise_id:'ex2',sets:4,reps:'8-10',rest:'120s',order:1},{exercise_id:'ex4',sets:3,reps:'10-12',rest:'90s',order:2}],created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'}
+]);
+if (!getPreviewData('clients')) setPreviewData('clients', [
+  {id:'cl1',name:'Carlos López',email:'carlos@email.com',phone:'+52 555 123 4567',notes:'Principiante, buena actitud',streak:15,password:'gym2026!',pago_inicio:'2026-01-01',pago_fin:'2026-12-31',assignedRoutines:['rt1','rt2'],created_at:'2026-01-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'},
+  {id:'cl2',name:'María García',email:'maria@email.com',phone:'+52 555 987 6543',notes:'Enfocada en pérdida de peso',streak:45,password:'maria2026',pago_inicio:'2026-03-01',pago_fin:'2026-09-01',assignedRoutines:['rt2','rt3'],created_at:'2026-03-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'},
+  {id:'cl3',name:'Pedro Sánchez',email:'pedro@email.com',phone:'+52 555 456 7890',notes:'Atleta avanzado',streak:90,password:'pedro2026',pago_inicio:'2025-06-01',pago_fin:'2026-06-01',assignedRoutines:['rt1','rt3'],created_at:'2025-06-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'}
+]);
+if (!getPreviewData('weekly')) setPreviewData('weekly', {cl1:[{day_of_week:0,routine_id:'rt1'},{day_of_week:2,routine_id:'rt2'},{day_of_week:4,routine_id:'rt1'}],cl2:[{day_of_week:1,routine_id:'rt2'},{day_of_week:3,routine_id:'rt3'},{day_of_week:5,routine_id:'rt2'}],cl3:[{day_of_week:0,routine_id:'rt1'},{day_of_week:2,routine_id:'rt3'},{day_of_week:4,routine_id:'rt1'},{day_of_week:6,routine_id:'rt3'}]});
+if (!getPreviewData('workouts')) setPreviewData('workouts', []);
+
+// ── API (localStorage-based) ──
 async function api(url, opts) {
-  const res = await fetch(API_BASE + url, { headers: { 'Content-Type': 'application/json', ...(opts||{}).headers }, ...opts });
-  if (!res.ok) { let m; try { m = (await res.json()).error } catch { m = res.statusText } throw new Error(m) }
-  return res.json();
+  const method = (opts && opts.method) || 'GET';
+
+  // GET /api/clients
+  if (url === '/api/clients' && method === 'GET') {
+    return getPreviewData('clients') || [];
+  }
+
+  // POST /api/clients/:id/verify-password
+  let m = url.match(/^\/api\/clients\/([^/]+)\/verify-password$/);
+  if (m && method === 'POST') {
+    const { password } = JSON.parse(opts.body);
+    const list = getPreviewData('clients') || [];
+    const c = list.find(cl => cl.id === m[1]);
+    if (!c) throw new Error('Cliente no encontrado');
+    return { success: c.password === password, client: c };
+  }
+
+  // GET /api/clients/:id/dashboard
+  m = url.match(/^\/api\/clients\/([^/]+)\/dashboard$/);
+  if (m && method === 'GET') {
+    const cid = m[1];
+    const clients = getPreviewData('clients') || [];
+    const client = clients.find(c => c.id === cid);
+    if (!client) throw new Error('Cliente no encontrado');
+    const routines = getPreviewData('routines') || [];
+    const workouts = getPreviewData('workouts') || [];
+    const assigned = routines.filter(r => (client.assignedRoutines||[]).includes(r.id));
+    const completedThisWeek = workouts.filter(w => w.client_id === cid && w.status === 'completed');
+    const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+    const weekWorkouts = completedThisWeek.filter(w => new Date(w.completed_at) >= weekStart);
+    return {
+      client,
+      stats: { caloriesBurned: weekWorkouts.length * 250, hoursActive: weekWorkouts.length * 1, workoutsCompletedThisWeek: weekWorkouts.length, weeklyGoal: 4, progressPercent: Math.min(100, (weekWorkouts.length / 4) * 100) },
+      routines: assigned,
+      nextRoutine: assigned[0] || null
+    };
+  }
+
+  // GET /api/clients/:id/routines-detail
+  m = url.match(/^\/api\/clients\/([^/]+)\/routines-detail$/);
+  if (m && method === 'GET') {
+    const cid = m[1];
+    const clients = getPreviewData('clients') || [];
+    const client = clients.find(c => c.id === cid);
+    if (!client) throw new Error('Cliente no encontrado');
+    const routines = getPreviewData('routines') || [];
+    const exercises = getPreviewData('exercises') || [];
+    const exMap = {}; exercises.forEach(e => { exMap[e.id] = e });
+    return routines.filter(r => (client.assignedRoutines||[]).includes(r.id)).map(r => ({
+      ...r,
+      exercises: (r.exercises||[]).map(e => ({ ...e, exercise_name: (exMap[e.exercise_id]||{}).name || 'Ejercicio' }))
+    }));
+  }
+
+  // GET /api/clients/:id/weekly-schedule
+  m = url.match(/^\/api\/clients\/([^/]+)\/weekly-schedule$/);
+  if (m && method === 'GET') {
+    const all = getPreviewData('weekly') || {};
+    const routines = getPreviewData('routines') || [];
+    const schedule = all[m[1]] || [];
+    return schedule.map(s => {
+      const r = routines.find(rt => rt.id === s.routine_id);
+      return { ...s, routine_name: r ? r.name : 'Rutina', routine_category: r ? r.category : 'General', exercise_count: r ? (r.exercises||[]).length : 0 };
+    });
+  }
+
+  // GET /api/clients/:id/workout/history
+  m = url.match(/^\/api\/clients\/([^/]+)\/workout\/history$/);
+  if (m && method === 'GET') {
+    const workouts = getPreviewData('workouts') || [];
+    return workouts.filter(w => w.client_id === m[1] && w.status === 'completed');
+  }
+
+  // GET /api/clients/:id/workout/active
+  m = url.match(/^\/api\/clients\/([^/]+)\/workout\/active$/);
+  if (m && method === 'GET') {
+    const workouts = getPreviewData('workouts') || [];
+    return workouts.find(w => w.client_id === m[1] && w.status === 'active') || null;
+  }
+
+  // POST /api/clients/:id/workout/start
+  m = url.match(/^\/api\/clients\/([^/]+)\/workout\/start$/);
+  if (m && method === 'POST') {
+    const { routineId } = JSON.parse(opts.body);
+    const routines = getPreviewData('routines') || [];
+    const r = routines.find(rt => rt.id === routineId);
+    const workout = { id: uid(), client_id: m[1], routine_id: routineId, routine_name: r ? r.name : 'Rutina', status: 'active', started_at: new Date().toISOString(), completed_at: null };
+    const workouts = getPreviewData('workouts') || [];
+    workouts.push(workout);
+    setPreviewData('workouts', workouts);
+    return workout;
+  }
+
+  // POST /api/workout/:id/complete
+  m = url.match(/^\/api\/workout\/([^/]+)\/complete$/);
+  if (m && method === 'POST') {
+    const workouts = getPreviewData('workouts') || [];
+    const w = workouts.find(wk => wk.id === m[1]);
+    if (w) { w.status = 'completed'; w.completed_at = new Date().toISOString(); }
+    setPreviewData('workouts', workouts);
+    return { success: true };
+  }
+
+  // GET /api/exercises
+  if (url === '/api/exercises' && method === 'GET') {
+    return getPreviewData('exercises') || [];
+  }
+
+  throw new Error('No disponible sin conexi&oacute;n al servidor');
 }
 
 // ── Login ──
@@ -200,7 +332,7 @@ async function showLogin() {
   } catch (e) {
     container.innerHTML = '';
     document.getElementById('loginError').classList.remove('hidden');
-    document.getElementById('loginError').textContent = 'Error de conexión: ' + e.message;
+    document.getElementById('loginError').textContent = 'Error: ' + e.message;
   }
 }
 

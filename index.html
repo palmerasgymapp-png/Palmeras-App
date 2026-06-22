@@ -184,7 +184,7 @@ body { background-color: #000000; color: #e4e2e1; font-family: 'Inter', sans-ser
     <div class="flex items-center gap-sm shrink-0">
       <button id="btnCreateProgram" class="bg-primary-fixed text-on-primary-fixed px-sm py-2 rounded-lg font-bold text-label-md hover:brightness-110 transition-all flex items-center gap-1"><span class="material-symbols-outlined text-[18px] hidden max-md:inline">add</span><span class="max-md:hidden">Crear Programa</span></button>
       <div class="flex gap-xs max-md:hidden">
-        <a href="Movil/movil.html" target="_blank" id="btnMobileView" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors" title="App Cliente" onclick="if(previewMode){event.preventDefault();showToast('No disponible en vista previa','info','text-on-surface-variant')}"><span class="material-symbols-outlined">smartphone</span></a>
+        <a href="Movil/movil.html" target="_blank" id="btnMobileView" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors" title="App Cliente"><span class="material-symbols-outlined">smartphone</span></a>
         <button id="btnNotifications" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined">notifications</span></button>
         <button id="btnHistory" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined">history</span></button>
       </div>
@@ -449,27 +449,10 @@ const MOCK_CLIENTS = [
 ];
 
 // ====================================================================
-// API LAYER (fetch-based with fallback to mock data)
+// LOCAL STORAGE LAYER
 // ====================================================================
-let previewMode = false;
-const previewBanner = document.createElement('div');
-previewBanner.id = 'previewBanner';
-previewBanner.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#ff5711;color:#fff;text-align:center;padding:6px 16px;font-size:13px;font-weight:600;letter-spacing:0.5px;';
-previewBanner.innerHTML = 'Vista Previa — Datos de Demostración  <span style="opacity:0.7;font-weight:400;">(los cambios no persistirán)</span>';
-document.body.prepend(previewBanner);
-
-function getPreviewData(key) {
-  return JSON.parse(localStorage.getItem('preview_' + key) || 'null');
-}
-function setPreviewData(key, data) {
-  localStorage.setItem('preview_' + key, JSON.stringify(data));
-}
-function initPreviewData() {
-  if (!getPreviewData('exercises')) setPreviewData('exercises', MOCK_EXERCISES);
-  if (!getPreviewData('routines')) setPreviewData('routines', MOCK_ROUTINES);
-  if (!getPreviewData('clients')) setPreviewData('clients', MOCK_CLIENTS);
-  if (!getPreviewData('weekly')) setPreviewData('weekly', JSON.parse(JSON.stringify(MOCK_WEEKLY)));
-}
+function getPreviewData(key) { return JSON.parse(localStorage.getItem('preview_' + key) || 'null'); }
+function setPreviewData(key, data) { localStorage.setItem('preview_' + key, JSON.stringify(data)); }
 
 // Sidebar toggle for mobile
 function toggleSidebar() {
@@ -499,123 +482,52 @@ document.addEventListener('click', function(e) {
   if (link && window.innerWidth < 768) closeSidebar();
 });
 
-async function tryAPI(fetchFn, previewKey, filterFn) {
-  try {
-    const res = await fetchFn();
-    if (!res.ok) throw new Error();
-    return res.json();
-  } catch {
-    if (!previewMode) {
-      previewMode = true;
-      initPreviewData();
-      const banner = document.getElementById('previewBanner');
-      if (banner) banner.style.display = 'block';
-    }
-    let data = getPreviewData(previewKey) || [];
-    return filterFn ? filterFn(data) : data;
-  }
-}
+// Initialize demo data on first load
+if (!getPreviewData('exercises')) setPreviewData('exercises', MOCK_EXERCISES);
+if (!getPreviewData('routines')) setPreviewData('routines', MOCK_ROUTINES);
+if (!getPreviewData('clients')) setPreviewData('clients', MOCK_CLIENTS);
+if (!getPreviewData('weekly')) setPreviewData('weekly', JSON.parse(JSON.stringify(MOCK_WEEKLY)));
 
 const API = {
-  async request(url, opts = {}) {
-    const res = await fetch(url, { headers: { 'Content-Type': 'application/json', ...opts.headers }, ...opts });
-    if (!res.ok) { let msg; try { const e = await res.json(); msg = e.error; } catch { msg = res.statusText; } throw new Error(msg); }
-    return res.json();
-  },
+  request: async () => { throw new Error('Requiere servidor local (node server.js)'); },
   exercises: {
-    all: () => tryAPI(() => fetch('/api/exercises'), 'exercises'),
-    get: (id) => tryAPI(() => fetch(`/api/exercises/${id}`), 'exercises', data => data.find(e => e.id === id)),
-    add: async (d) => {
-      if (previewMode) { const list = getPreviewData('exercises'); list.push(d); setPreviewData('exercises', list); return d; }
-      return API.request('/api/exercises', { method: 'POST', body: JSON.stringify(d) });
-    },
-    update: async (id, d) => {
-      if (previewMode) { const list = getPreviewData('exercises'); const idx = list.findIndex(e => e.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, image_url: d.imageUrl, video_url: d.videoUrl, updated_at: new Date().toISOString()}; setPreviewData('exercises', list); return list[idx]; } return d; }
-      return API.request(`/api/exercises/${id}`, { method: 'PUT', body: JSON.stringify(d) });
-    },
-    delete: async (id) => {
-      if (previewMode) { const list = getPreviewData('exercises'); setPreviewData('exercises', list.filter(e => e.id !== id)); return { success: true }; }
-      return API.request(`/api/exercises/${id}`, { method: 'DELETE' });
-    }
+    all: () => getPreviewData('exercises') || [],
+    get: (id) => (getPreviewData('exercises') || []).find(e => e.id === id),
+    add: async (d) => { const list = getPreviewData('exercises'); list.push(d); setPreviewData('exercises', list); return d; },
+    update: async (id, d) => { const list = getPreviewData('exercises'); const idx = list.findIndex(e => e.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, image_url: d.imageUrl, video_url: d.videoUrl, updated_at: new Date().toISOString()}; setPreviewData('exercises', list); return list[idx]; } return d; },
+    delete: async (id) => { const list = getPreviewData('exercises'); setPreviewData('exercises', list.filter(e => e.id !== id)); return { success: true }; }
   },
   routines: {
-    all: () => tryAPI(() => fetch('/api/routines'), 'routines'),
-    get: (id) => tryAPI(() => fetch(`/api/routines/${id}`), 'routines', data => data.find(r => r.id === id)),
-    add: async (d) => {
-      if (previewMode) { const list = getPreviewData('routines'); list.push(d); setPreviewData('routines', list); return d; }
-      return API.request('/api/routines', { method: 'POST', body: JSON.stringify(d) });
-    },
-    update: async (id, d) => {
-      if (previewMode) { const list = getPreviewData('routines'); const idx = list.findIndex(r => r.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('routines', list); return list[idx]; } return d; }
-      return API.request(`/api/routines/${id}`, { method: 'PUT', body: JSON.stringify(d) });
-    },
-    delete: async (id) => {
-      if (previewMode) { const list = getPreviewData('routines'); setPreviewData('routines', list.filter(r => r.id !== id)); return { success: true }; }
-      return API.request(`/api/routines/${id}`, { method: 'DELETE' });
-    }
+    all: () => getPreviewData('routines') || [],
+    get: (id) => (getPreviewData('routines') || []).find(r => r.id === id),
+    add: async (d) => { const list = getPreviewData('routines'); list.push(d); setPreviewData('routines', list); return d; },
+    update: async (id, d) => { const list = getPreviewData('routines'); const idx = list.findIndex(r => r.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('routines', list); return list[idx]; } return d; },
+    delete: async (id) => { const list = getPreviewData('routines'); setPreviewData('routines', list.filter(r => r.id !== id)); return { success: true }; }
   },
   clients: {
-    all: () => tryAPI(() => fetch('/api/clients'), 'clients'),
-    get: (id) => tryAPI(() => fetch(`/api/clients/${id}`), 'clients', data => data.find(c => c.id === id)),
-    add: async (d) => {
-      if (previewMode) { const list = getPreviewData('clients'); list.push(d); setPreviewData('clients', list); return d; }
-      return API.request('/api/clients', { method: 'POST', body: JSON.stringify(d) });
-    },
-    update: async (id, d) => {
-      if (previewMode) { const list = getPreviewData('clients'); const idx = list.findIndex(c => c.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('clients', list); return list[idx]; } return d; }
-      return API.request(`/api/clients/${id}`, { method: 'PUT', body: JSON.stringify(d) });
-    },
-    delete: async (id) => {
-      if (previewMode) { const list = getPreviewData('clients'); setPreviewData('clients', list.filter(c => c.id !== id)); return { success: true }; }
-      return API.request(`/api/clients/${id}`, { method: 'DELETE' });
-    },
-    assignRoutine: async (id, routineId) => {
-      if (previewMode) { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = [...(c.assignedRoutines||[]), routineId]; setPreviewData('clients', list); } return c; }
-      return API.request(`/api/clients/${id}/routines`, { method: 'POST', body: JSON.stringify({ routineId }) });
-    },
-    unassignRoutine: async (id, routineId) => {
-      if (previewMode) { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = (c.assignedRoutines||[]).filter(r => r !== routineId); setPreviewData('clients', list); } return c; }
-      return API.request(`/api/clients/${id}/routines/${routineId}`, { method: 'DELETE' });
-    },
-    regeneratePassword: async (id) => {
-      if (previewMode) { const pwd = generatePassword(); const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.password = pwd; setPreviewData('clients', list); } return { password: pwd }; }
-      return API.request(`/api/clients/${id}/regenerate-password`, { method: 'POST' });
-    },
-    verifyPassword: async (id, password) => {
-      if (previewMode) { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); return { success: c && c.password === password, client: c }; }
-      return API.request(`/api/clients/${id}/verify-password`, { method: 'POST', body: JSON.stringify({ password }) });
-    }
+    all: () => getPreviewData('clients') || [],
+    get: (id) => (getPreviewData('clients') || []).find(c => c.id === id),
+    add: async (d) => { const list = getPreviewData('clients'); list.push(d); setPreviewData('clients', list); return d; },
+    update: async (id, d) => { const list = getPreviewData('clients'); const idx = list.findIndex(c => c.id === id); if (idx>-1) { list[idx] = {...list[idx], ...d, updated_at: new Date().toISOString()}; setPreviewData('clients', list); return list[idx]; } return d; },
+    delete: async (id) => { const list = getPreviewData('clients'); setPreviewData('clients', list.filter(c => c.id !== id)); return { success: true }; },
+    assignRoutine: async (id, routineId) => { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = [...(c.assignedRoutines||[]), routineId]; setPreviewData('clients', list); } return c; },
+    unassignRoutine: async (id, routineId) => { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.assignedRoutines = (c.assignedRoutines||[]).filter(r => r !== routineId); setPreviewData('clients', list); } return c; },
+    regeneratePassword: async (id) => { const pwd = generatePassword(); const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); if (c) { c.password = pwd; setPreviewData('clients', list); } return { password: pwd }; },
+    verifyPassword: async (id, password) => { const list = getPreviewData('clients'); const c = list.find(cl => cl.id === id); return { success: c && c.password === password, client: c }; }
   },
   weeklySchedule: {
-    get: async (clientId) => {
-      if (previewMode) {
-        const all = getPreviewData('weekly') || {};
-        return all[clientId] || [];
-      }
-      return API.request(`/api/clients/${clientId}/weekly-schedule`);
-    },
+    get: async (clientId) => { const all = getPreviewData('weekly') || {}; return all[clientId] || []; },
     set: async (clientId, dayOfWeek, routineId) => {
-      if (previewMode) {
-        const all = getPreviewData('weekly') || {};
-        const list = all[clientId] || [];
-        const idx = list.findIndex(w => w.day_of_week === dayOfWeek);
-        if (idx > -1) list[idx] = { day_of_week: dayOfWeek, routine_id: routineId };
-        else list.push({ day_of_week: dayOfWeek, routine_id: routineId });
-        all[clientId] = list;
-        setPreviewData('weekly', all);
-        return { success: true };
-      }
-      return API.request(`/api/clients/${clientId}/weekly-schedule`, { method: 'POST', body: JSON.stringify({ dayOfWeek, routineId }) });
+      const all = getPreviewData('weekly') || {}; const list = all[clientId] || [];
+      const idx = list.findIndex(w => w.day_of_week === dayOfWeek);
+      if (idx > -1) list[idx] = { day_of_week: dayOfWeek, routine_id: routineId };
+      else list.push({ day_of_week: dayOfWeek, routine_id: routineId });
+      all[clientId] = list; setPreviewData('weekly', all); return { success: true };
     },
     remove: async (clientId, dayOfWeek) => {
-      if (previewMode) {
-        const all = getPreviewData('weekly') || {};
-        const list = all[clientId] || [];
-        all[clientId] = list.filter(w => w.day_of_week !== dayOfWeek);
-        setPreviewData('weekly', all);
-        return { success: true };
-      }
-      return API.request(`/api/clients/${clientId}/weekly-schedule/${dayOfWeek}`, { method: 'DELETE' });
+      const all = getPreviewData('weekly') || {}; const list = all[clientId] || [];
+      all[clientId] = list.filter(w => w.day_of_week !== dayOfWeek);
+      setPreviewData('weekly', all); return { success: true };
     }
   }
 };
@@ -1630,7 +1542,6 @@ async function renderSettings() {
 
 // Backup API helpers
 async function createBackup() {
-  if (previewMode) { showToast('No disponible en vista previa', 'info', 'text-on-surface-variant'); return; }
   try {
     const r = await API.request('/api/backup/create', { method: 'POST' });
     showToast('Respaldo creado: ' + r.name, 'backup', 'text-primary-fixed');
@@ -1640,7 +1551,6 @@ async function createBackup() {
 }
 
 async function downloadBackup() {
-  if (previewMode) { showToast('No disponible en vista previa', 'info', 'text-on-surface-variant'); return; }
   try {
     const res = await fetch('/api/backup/download');
     if (!res.ok) throw new Error('Error al descargar');
@@ -1713,18 +1623,7 @@ async function deleteBackupFile(name) {
 // GITHUB BACKUP SYNC
 // ====================================================================
 async function loadGhSync() {
-  if (previewMode) { document.getElementById('ghSyncStatus').innerHTML = '<span class="text-on-surface-variant">Disponible solo con servidor local</span>'; return; }
-  try {
-    const r = await API.request('/api/backup/ghsync');
-    document.getElementById('ghSyncStatus').innerHTML = r.enabled
-      ? '<span class="text-success">Sincronizaci&oacute;n activa</span> &middot; Token: ' + r.token
-      : '<span class="text-on-surface-variant">Sincronizaci&oacute;n desactivada</span>';
-    document.getElementById('ghTokenInput').value = '';
-    document.getElementById('ghEnabledCheck').checked = r.enabled;
-    document.getElementById('ghRepoDisplay').textContent = r.repo || 'palmerasgymapp-png/Palmeras-App';
-  } catch (e) {
-    document.getElementById('ghSyncStatus').innerHTML = '<span class="text-error">Error: ' + e.message + '</span>';
-  }
+  document.getElementById('ghSyncStatus').innerHTML = '<span class="text-on-surface-variant">Usa el panel de administraci&oacute;n local (node server.js) para gestionar sincronizaci&oacute;n con GitHub</span>';
 }
 async function saveGhSync() {
   try {
@@ -1785,11 +1684,7 @@ async function gitRefreshStatus() {
       repoInfo.classList.remove('hidden');
     }
   } catch (e) {
-    if (previewMode) {
-      el.innerHTML = '<span class="text-on-surface-variant">︎Disponible solo con el servidor local (node server.js)</span>';
-    } else {
-      el.innerHTML = '<span class="text-error">Error: ' + e.message + '</span>';
-    }
+    el.innerHTML = '<span class="text-on-surface-variant">Disponible solo con el servidor local (node server.js)</span>';
   }
 }
 async function gitInit() {
@@ -1819,16 +1714,7 @@ async function gitSetRemote() {
   } catch (e) { gitShowOutput('Error: ' + e.message); }
 }
 async function gitPush() {
-  if (previewMode) { showToast('Usa el servidor local para sincronizar con GitHub', 'info', 'text-on-surface-variant'); return; }
-  const repoUrl = document.getElementById('gitRepoUrl').value.trim();
-  if (!repoUrl) { showToast('Ingresa la URL del repositorio', 'warning', 'text-error'); return; }
-  gitClearOutput();
-  try {
-    const token = document.getElementById('gitToken').value.trim();
-    const r = await API.request('/api/git/push', { method: 'POST', body: JSON.stringify({ repoUrl, token: token || undefined }) });
-    gitShowOutput(r.output || '');
-    if (r.success) await gitRefreshStatus();
-  } catch (e) { gitShowOutput('Error: ' + e.message); }
+  showToast('La sincronizaci&oacute;n con GitHub requiere el servidor local (node server.js)', 'info', 'text-on-surface-variant');
 }
 
 

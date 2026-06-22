@@ -219,6 +219,7 @@ app.get('/api/clients/:id/workout/active', (req, res) => {
 // ── Backup & Restore ──
 const multer = require('multer');
 const upload = multer({ dest: path.join(__dirname, 'uploads'), limits: { fileSize: 100 * 1024 * 1024 } });
+const ghsync = require('./ghsync');
 
 app.get('/api/backup/info', (req, res) => {
   try { res.json(db.getDbInfo()); }
@@ -237,6 +238,10 @@ app.get('/api/backup/download', (req, res) => {
 app.post('/api/backup/create', (req, res) => {
   try {
     const backup = db.createBackup();
+    ghsync.syncBackup(backup.name, (err, msg) => {
+      if (err) console.error('GitHub sync error:', err.message);
+      else if (msg) console.log('GitHub sync:', msg);
+    });
     res.json(backup);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -272,6 +277,25 @@ app.delete('/api/backup/:name', (req, res) => {
     if (!fs.existsSync(backupPath)) return res.status(404).json({ error: 'Backup no encontrado' });
     fs.unlinkSync(backupPath);
     res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── GitHub Sync ──
+app.get('/api/backup/ghsync', (req, res) => {
+  try {
+    const cfg = ghsync.getConfig();
+    res.json({ token: cfg.token ? '••••' + cfg.token.slice(-4) : '', repo: cfg.repo, enabled: cfg.enabled });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/backup/ghsync', (req, res) => {
+  try {
+    const { token, enabled } = req.body;
+    const cfg = ghsync.getConfig();
+    if (token !== undefined && token !== '') cfg.token = token;
+    if (enabled !== undefined) cfg.enabled = !!enabled;
+    ghsync.saveConfig(cfg);
+    res.json({ success: true, token: cfg.token ? '••••' + cfg.token.slice(-4) : '', enabled: cfg.enabled });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

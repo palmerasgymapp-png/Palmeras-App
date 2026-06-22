@@ -673,7 +673,7 @@ async function renderPage(page) {
       case 'routines': c.innerHTML = await renderRoutines(); break;
       case 'weekly': c.innerHTML = await renderWeekly(); break;
       case 'clients': c.innerHTML = await renderClients(); break;
-      case 'settings': c.innerHTML = await renderSettings(); setTimeout(gitRefreshStatus, 100); break;
+      case 'settings': c.innerHTML = await renderSettings(); setTimeout(() => { gitRefreshStatus(); loadGhSync(); }, 100); break;
       case 'support': openInfoModal('Soporte', '<p>Centro de ayuda de Palmeras Gym App.</p><p class="mt-sm">• Documentación: <span class="text-primary-fixed">docs.palmerasgym.app</span><br/>• Email: <span class="text-primary-fixed">soporte@palmerasgym.app</span><br/>• Chat en vivo: Lun-Vie 9:00-18:00<br/>• Tiempo de respuesta: &lt; 4h</p>'); navigate(currentPage); break;
       default: navigate('dashboard');
     }
@@ -1468,6 +1468,33 @@ async function renderSettings() {
     </div>
   </div>
 
+  <!-- GitHub Sync -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-primary-fixed">cloud_upload</span> Sincronizaci&oacute;n GitHub
+    </h3>
+    <div id="ghSyncStatus" class="text-caption text-on-surface-variant mb-md">Cargando estado...</div>
+    <div class="flex flex-col gap-sm">
+      <div class="flex items-center gap-sm">
+        <span class="font-label-md text-label-md text-on-surface-variant shrink-0">Token:</span>
+        <input id="ghTokenInput" type="password" class="flex-1 bg-surface-container-low border border-outline-variant rounded-lg py-1.5 px-3 text-body-md text-sm focus:outline-none focus:border-primary-fixed" placeholder="ghp_..."/>
+      </div>
+      <div class="flex items-center gap-sm">
+        <span class="font-label-md text-label-md text-on-surface-variant">Repo:</span>
+        <span id="ghRepoDisplay" class="text-body-md text-on-surface text-sm">palmerasgymapp-png/Palmeras-App</span>
+      </div>
+      <div class="flex items-center gap-sm">
+        <label class="flex items-center gap-xs cursor-pointer">
+          <input type="checkbox" id="ghEnabledCheck" class="accent-primary-fixed"/>
+          <span class="font-label-md text-label-md text-on-surface-variant">Activar sincronizaci&oacute;n autom&aacute;tica</span>
+        </label>
+      </div>
+      <button onclick="saveGhSync()" class="bg-primary-fixed text-on-primary-fixed px-md py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:brightness-110 transition-all self-start">
+        <span class="material-symbols-outlined">save</span> Guardar configuraci&oacute;n
+      </button>
+    </div>
+  </div>
+
   <!-- Backup History -->
   <div class="tonal-elevation-1 rounded-xl p-md">
     <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
@@ -1564,6 +1591,7 @@ async function createBackup() {
     const r = await API.request('/api/backup/create', { method: 'POST' });
     showToast('Respaldo creado: ' + r.name, 'backup', 'text-primary-fixed');
     navigate('settings');
+    setTimeout(loadGhSync, 500);
   } catch (e) { showToast('Error: ' + e.message, 'error', 'text-error'); }
 }
 
@@ -1634,6 +1662,35 @@ async function deleteBackupFile(name) {
     await API.request('/api/backup/' + encodeURIComponent(name), { method: 'DELETE' });
     showToast('Respaldo eliminado', 'delete', 'text-error');
     navigate('settings');
+  } catch (e) { showToast('Error: ' + e.message, 'error', 'text-error'); }
+}
+
+// ====================================================================
+// GITHUB BACKUP SYNC
+// ====================================================================
+async function loadGhSync() {
+  if (previewMode) { document.getElementById('ghSyncStatus').innerHTML = '<span class="text-on-surface-variant">Disponible solo con servidor local</span>'; return; }
+  try {
+    const r = await API.request('/api/backup/ghsync');
+    document.getElementById('ghSyncStatus').innerHTML = r.enabled
+      ? '<span class="text-success">Sincronizaci&oacute;n activa</span> &middot; Token: ' + r.token
+      : '<span class="text-on-surface-variant">Sincronizaci&oacute;n desactivada</span>';
+    document.getElementById('ghTokenInput').value = '';
+    document.getElementById('ghEnabledCheck').checked = r.enabled;
+    document.getElementById('ghRepoDisplay').textContent = r.repo || 'palmerasgymapp-png/Palmeras-App';
+  } catch (e) {
+    document.getElementById('ghSyncStatus').innerHTML = '<span class="text-error">Error: ' + e.message + '</span>';
+  }
+}
+async function saveGhSync() {
+  try {
+    const token = document.getElementById('ghTokenInput').value.trim();
+    const enabled = document.getElementById('ghEnabledCheck').checked;
+    const r = await API.request('/api/backup/ghsync', { method: 'POST', body: JSON.stringify({ token: token || undefined, enabled }) });
+    showToast('Configuraci&oacute;n guardada', 'save');
+    document.getElementById('ghSyncStatus').innerHTML = r.enabled
+      ? '<span class="text-success">Sincronizaci&oacute;n activa</span> &middot; Token: ' + r.token
+      : '<span class="text-on-surface-variant">Sincronizaci&oacute;n desactivada</span>';
   } catch (e) { showToast('Error: ' + e.message, 'error', 'text-error'); }
 }
 

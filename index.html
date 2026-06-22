@@ -184,7 +184,7 @@ body { background-color: #000000; color: #e4e2e1; font-family: 'Inter', sans-ser
     <div class="flex items-center gap-sm shrink-0">
       <button id="btnCreateProgram" class="bg-primary-fixed text-on-primary-fixed px-sm py-2 rounded-lg font-bold text-label-md hover:brightness-110 transition-all flex items-center gap-1"><span class="material-symbols-outlined text-[18px] hidden max-md:inline">add</span><span class="max-md:hidden">Crear Programa</span></button>
       <div class="flex gap-xs max-md:hidden">
-        <a href="/app" target="_blank" id="btnMobileView" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors" title="App Cliente" onclick="if(previewMode){event.preventDefault();showToast('No disponible en vista previa','info','text-on-surface-variant')}"><span class="material-symbols-outlined">smartphone</span></a>
+        <a href="Movil/movil.html" target="_blank" id="btnMobileView" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors" title="App Cliente" onclick="if(previewMode){event.preventDefault();showToast('No disponible en vista previa','info','text-on-surface-variant')}"><span class="material-symbols-outlined">smartphone</span></a>
         <button id="btnNotifications" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined">notifications</span></button>
         <button id="btnHistory" class="p-2 text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined">history</span></button>
       </div>
@@ -256,6 +256,25 @@ body { background-color: #000000; color: #e4e2e1; font-family: 'Inter', sans-ser
       <div class="flex gap-sm pt-sm">
         <button onclick="closeModal('deleteModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
         <button id="btnConfirmDelete" class="flex-1 bg-error-container text-on-error-container py-2 rounded-lg font-bold text-label-md hover:brightness-110 transition-all">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Password Modal -->
+<div id="settingsPassModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('settingsPassModal')">
+  <div class="tonal-elevation-1 rounded-xl w-full max-w-sm mx-sm" onclick="event.stopPropagation()">
+    <div class="p-md space-y-sm">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-[48px] text-primary-fixed">lock</span>
+        <h3 class="font-headline-md text-headline-md text-on-surface mt-xs">Configuraci&oacute;n Protegida</h3>
+        <p class="text-on-surface-variant text-body-md">Ingresa la contrase&ntilde;a de administraci&oacute;n.</p>
+      </div>
+      <input id="settingsPassInput" type="password" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md text-center focus:outline-none focus:border-primary-fixed" placeholder="Contrase&ntilde;a" autocomplete="off" onkeydown="if(event.key==='Enter')submitSettingsPass()"/>
+      <p id="settingsPassError" class="text-error text-caption text-center hidden">Contrase&ntilde;a incorrecta</p>
+      <div class="flex gap-sm pt-sm">
+        <button onclick="closeModal('settingsPassModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
+        <button onclick="submitSettingsPass()" class="flex-1 bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md hover:brightness-110 transition-all">Acceder</button>
       </div>
     </div>
   </div>
@@ -641,7 +660,32 @@ function openModal(id) { document.getElementById(id).classList.remove('hidden') 
 // ROUTER
 // ====================================================================
 let currentPage = 'dashboard';
+let settingsUnlocked = false;
+
+function openSettingsPassModal() {
+  document.getElementById('settingsPassInput').value = '';
+  document.getElementById('settingsPassError').classList.add('hidden');
+  openModal('settingsPassModal');
+  setTimeout(() => document.getElementById('settingsPassInput').focus(), 100);
+}
+function submitSettingsPass() {
+  const pass = document.getElementById('settingsPassInput').value;
+  if (pass === 'gym888') {
+    settingsUnlocked = true;
+    closeModal('settingsPassModal');
+    navigate('settings');
+  } else {
+    document.getElementById('settingsPassError').classList.remove('hidden');
+    document.getElementById('settingsPassInput').value = '';
+    document.getElementById('settingsPassInput').focus();
+  }
+}
+
 async function navigate(page) {
+  if (page === 'settings' && !settingsUnlocked) {
+    openSettingsPassModal();
+    return;
+  }
   const prevPage = currentPage;
   currentPage = page;
   document.querySelectorAll('#sidebarNav a').forEach(a => {
@@ -1272,7 +1316,7 @@ async function renderClients() {
               </div>
             </div>
             <div class="flex items-center gap-xs flex-wrap justify-start md:justify-end border-t md:border-t-0 border-outline-variant/20 pt-sm md:pt-0">
-              <a href="/app?client=${c.id}" target="_blank" class="px-sm py-1 bg-primary-fixed/10 text-primary-fixed rounded-lg text-caption font-bold hover:bg-primary-fixed/20 transition-colors" title="Ver como cliente"><span class="material-symbols-outlined text-[16px]">open_in_new</span></a>
+              <a href="Movil/movil.html?client=${c.id}" target="_blank" class="px-sm py-1 bg-primary-fixed/10 text-primary-fixed rounded-lg text-caption font-bold hover:bg-primary-fixed/20 transition-colors" title="Ver como cliente"><span class="material-symbols-outlined text-[16px]">open_in_new</span></a>
               <button onclick="weeklyClientId='${c.id}';navigate('weekly')" class="px-sm py-1 bg-primary-fixed/10 text-primary-fixed rounded-lg text-caption font-bold hover:bg-primary-fixed/20 transition-colors" title="Planilla semanal"><span class="material-symbols-outlined text-[16px]">calendar_month</span></button>
               <button onclick="openAssignModal('${c.id}')" class="px-sm py-1 bg-primary-fixed/10 text-primary-fixed rounded-lg text-caption font-bold hover:bg-primary-fixed/20 transition-colors"><span class="material-symbols-outlined text-[16px]">assignment</span></button>
               <button onclick="openClientModal('${c.id}')" class="px-sm py-1 text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>

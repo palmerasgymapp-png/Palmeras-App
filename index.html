@@ -119,9 +119,40 @@ body { background-color: #000000; color: #e4e2e1; font-family: 'Inter', sans-ser
 .day-today .day-number { color: #a855f7; }
 .day-cell { min-height: 180px; transition: all 0.2s; }
 .day-cell:hover { border-color: #8f9378; }
+
+/* Electron custom title bar */
+.electron-titlebar { position: fixed; top: 0; left: 0; right: 0; height: 36px; background: #0a0a0a; z-index: 9999; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; border-bottom: 1px solid #2D2D2D; user-select: none; }
+.electron-titlebar-drag { display: flex; align-items: center; gap: 4px; -webkit-app-region: drag; flex: 1; height: 100%; }
+.electron-titlebar-actions { display: flex; align-items: center; gap: 0; -webkit-app-region: no-drag; }
+.electron-titlebar-btn { width: 40px; height: 36px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: #8f9378; cursor: pointer; transition: all 0.15s; }
+.electron-titlebar-btn:hover { background: #2a2a2a; color: #e4e2e1; }
+.electron-titlebar-btn.electron-titlebar-close:hover { background: #e81123; color: #fff; }
+body.electron-mode #sidebar { top: 36px !important; }
+body.electron-mode #toast { margin-top: 36px; }
+body.electron-mode main { margin-top: 36px; }
+body.electron-mode .header-section { margin-top: 36px; }
 </style>
 </head>
 <body class="overflow-hidden">
+
+<!-- Electron custom title bar (hidden by default) -->
+<div id="electronTitlebar" class="electron-titlebar" style="display:none">
+  <div class="electron-titlebar-drag">
+    <span class="material-symbols-outlined text-primary-fixed text-[18px]">fitness_center</span>
+    <span class="font-label-md text-label-md text-on-surface uppercase tracking-widest ml-xs">Palmeras Gym</span>
+  </div>
+  <div class="electron-titlebar-actions">
+    <button class="electron-titlebar-btn" onclick="if(window.electronAPI)window.electronAPI.minimize()" title="Minimizar">
+      <span class="material-symbols-outlined text-[16px]">minimize</span>
+    </button>
+    <button class="electron-titlebar-btn" id="titlebarMaxBtn" onclick="if(window.electronAPI)window.electronAPI.maximize()" title="Maximizar">
+      <span class="material-symbols-outlined text-[16px]">crop_square</span>
+    </button>
+    <button class="electron-titlebar-btn electron-titlebar-close" onclick="if(window.electronAPI)window.electronAPI.close()" title="Cerrar">
+      <span class="material-symbols-outlined text-[16px]">close</span>
+    </button>
+  </div>
+</div>
 
 <div id="toast" class="toast tonal-elevation-1 rounded-xl px-md py-sm flex items-center gap-sm">
   <span id="toastIcon" class="material-symbols-outlined text-primary-fixed">check_circle</span>
@@ -649,6 +680,18 @@ function openModal(id) { document.getElementById(id).classList.remove('hidden') 
 // ====================================================================
 let currentPage = 'dashboard';
 let settingsUnlocked = false;
+
+// Detect Electron — show custom title bar
+if (window.electronAPI) {
+  document.body.classList.add('electron-mode');
+  document.getElementById('electronTitlebar').style.display = 'flex';
+  window.electronAPI.onWindowState((state) => {
+    const btn = document.getElementById('titlebarMaxBtn');
+    if (btn) btn.innerHTML = state === 'maximized'
+      ? '<span class="material-symbols-outlined text-[16px]">filter_none</span>'
+      : '<span class="material-symbols-outlined text-[16px]">crop_square</span>';
+  });
+}
 
 function openSettingsPassModal() {
   document.getElementById('settingsPassInput').value = '';

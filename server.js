@@ -456,15 +456,22 @@ app.post('/api/git/push', (req, res) => {
 });
 
 // ── Start ──
-async function main() {
+async function start() {
   await db.init();
   db.seed();
-  app.listen(PORT, () => {
-    console.log(`Palmeras Gym HQ server running at http://localhost:${PORT}`);
+  return new Promise((resolve) => {
+    app.listen(PORT, () => {
+      console.log(`Palmeras Gym HQ server running at http://localhost:${PORT}`);
+      resolve();
+    });
   });
 }
 
-main().catch(e => {
-  console.error('Failed to start server:', e);
-  process.exit(1);
-});
+if (require.main === module) {
+  start().catch(e => {
+    console.error('Failed to start server:', e);
+    process.exit(1);
+  });
+}
+
+module.exports = { app, start };

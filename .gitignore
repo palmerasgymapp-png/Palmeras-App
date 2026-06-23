@@ -1,5 +1,8 @@
 node_modules/
 backups/
+build/
 uploads/
+App/
 *.db
 .ghsync.json
+token_github.txt

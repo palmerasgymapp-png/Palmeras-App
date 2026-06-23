@@ -221,7 +221,8 @@ app.get('/api/clients/:id/workout/active', (req, res) => {
 
 // ── Backup & Restore ──
 const multer = require('multer');
-const upload = multer({ dest: path.join(__dirname, 'uploads'), limits: { fileSize: 100 * 1024 * 1024 } });
+const UPLOAD_DIR = path.join(process.env.DATA_DIR || __dirname, 'uploads');
+const upload = multer({ dest: UPLOAD_DIR, limits: { fileSize: 100 * 1024 * 1024 } });
 const ghsync = require('./ghsync');
 
 app.get('/api/backup/info', (req, res) => {
@@ -459,10 +460,16 @@ app.post('/api/git/push', (req, res) => {
 async function start() {
   await db.init();
   db.seed();
-  return new Promise((resolve) => {
-    app.listen(PORT, () => {
+  // Ensure writable directories exist
+  if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  return new Promise((resolve, reject) => {
+    const srv = app.listen(PORT, () => {
       console.log(`Palmeras Gym HQ server running at http://localhost:${PORT}`);
       resolve();
+    });
+    srv.on('error', (e) => {
+      console.error('Server error:', e.message);
+      reject(e);
     });
   });
 }

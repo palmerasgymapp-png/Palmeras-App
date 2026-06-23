@@ -2,8 +2,9 @@ const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, 'palmerasgym.db');
-const BACKUP_DIR = path.join(__dirname, 'backups');
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const DB_PATH = path.join(DATA_DIR, 'palmerasgym.db');
+const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 let db = null;
 let SQL = null;
 

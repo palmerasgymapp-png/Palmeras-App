@@ -27,10 +27,12 @@ if (!gotLock) {
 let server;
 async function startServer() {
   try {
+    // Use user data directory for writable files (DB, backups, uploads, config)
+    process.env.DATA_DIR = app.getPath('userData');
     server = require('../server');
     await server.start();
   } catch (e) {
-    dialog.showErrorBox('Error del servidor', 'No se pudo iniciar el servidor interno:\n' + e.message);
+    dialog.showErrorBox('Error del servidor', 'No se pudo iniciar el servidor interno:\n' + e.message + '\n\n' + (e.stack || ''));
     app.quit();
   }
 }

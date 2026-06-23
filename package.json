@@ -30,7 +30,7 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "electron/icon.png"
+      "icon": "electron/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -38,9 +38,9 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Palmeras Gym",
-      "installerIcon": "electron/icon.png",
-      "uninstallerIcon": "electron/icon.png",
-      "installerHeaderIcon": "electron/icon.png"
+      "installerIcon": "electron/icon.ico",
+      "uninstallerIcon": "electron/icon.ico",
+      "installerHeaderIcon": "electron/icon.ico"
     }
   },
   "dependencies": {
@@ -60,6 +60,7 @@
   "devDependencies": {
     "electron": "^28.3.3",
     "electron-builder": "^24.9.0",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "sharp": "^0.35.2"
   }
 }

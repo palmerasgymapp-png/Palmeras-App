@@ -2,7 +2,7 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const CONFIG_PATH = path.join(__dirname, '.ghsync.json');
+const CONFIG_PATH = path.join(process.env.DATA_DIR || __dirname, '.ghsync.json');
 
 function getConfig() {
   try {
@@ -13,6 +13,8 @@ function getConfig() {
 }
 
 function saveConfig(cfg) {
+  const dir = path.dirname(CONFIG_PATH);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(cfg, null, 2), 'utf8');
 }
 

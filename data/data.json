@@ -1,0 +1,211 @@
+{
+  "exercises": [
+    {
+      "id": "ex3",
+      "name": "Flujo Postura Paloma",
+      "category": "Flexibilidad",
+      "muscles": "Caderas, Espalda Baja",
+      "description": "Postura de yoga para apertura profunda de cadera. Mantén la respiración constante y relaja la tensión.",
+      "image_url": "https://lh3.googleusercontent.com/aida/AP1WRLucfG9IJpyxx6OEkPmHVZsTYx_vrwIeBpPd9t0SpnVIm-Pou_EMEyZCavmzQNDBDVvVXTcayanZOHQdXJTaiQX9ZXJ-d_qFFTycvLs0oCj8ZUXHiza7TdlHTYDz0-CUVLTQhLplfv0FOmEGxntC2zrOiyvXrWVaP3zDg3ucOYU0g2CZtIrpHOh9kSe2JalYglcH9vpYNUtspKL0wzc-IfttE4sknYuz-CH1_3eTXRCVIRxeV3H8jw7in6M",
+      "video_url": "",
+      "created_at": "2026-06-07T06:00:00Z",
+      "updated_at": "2026-06-07T09:00:00Z"
+    },
+    {
+      "id": "ex1",
+      "name": "Sentadilla con Barra",
+      "category": "Fuerza",
+      "muscles": "Cuádriceps, Glúteos",
+      "description": "Ejercicio compuesto fundamental para el desarrollo de piernas. Mantén la espalda recta y baja hasta que los muslos estén paralelos al suelo.",
+      "image_url": "https://lh3.googleusercontent.com/aida/AP1WRLslG9HUJyj1WpScCiq3GwHK-G7UJok5FuXxrQuQRniZiCA5fcOg7pkFxxJNGWqaFpYXZwK1QbOk07iMkC7Cod8tmFpXGwMHv_cbZXAgn0K_EPRMxjH48GgRw5ackMsjDvvGadEge8nPvSUa8wdIMq9Mt9JJ8iW-2EJsj30N3QZ407xCh4u4c3ATT95teijPXNsyug6hdtJ6Yy-9bREbzOpKLI9He9fAsm5iBodUkdGvITEPoEAuj_OrYPU",
+      "video_url": "https://www.youtube.com/watch?v=UaNwCwCvjJM",
+      "created_at": "2026-05-20T10:00:00Z",
+      "updated_at": "2026-06-05T14:30:00Z"
+    },
+    {
+      "id": "ex4",
+      "name": "Press de Banca con Mancuernas",
+      "category": "Fuerza",
+      "muscles": "Pectorales, Tríceps",
+      "description": "Variación con mancuernas que permite mayor rango de movimiento y activación unilateral.",
+      "image_url": "https://lh3.googleusercontent.com/aida/AP1WRLvpZ5_9yv-U79hW-zMDk4fuNMZjMG5tstFVKPZkTLrHCAL89lDTFFN0dFknAX6QHc6RYSbWcHdQhTqyk6mZU1t62HGdtj9-KHe64niocTbU5TyKH0L2pMYdCLO52GWG-gXuCNxZECifXkgD5CtmfyIW0_U9AvMv4YDG8SOdFUkIf5TycnQJ8OBcfSzGDeCOIep-OJucYeiDHrW747UxS5zXNc3xZ7C6yQ2rfJB3k3aesfUJGqSQlEaYqQ",
+      "video_url": "https://www.youtube.com/watch?v=Zgxs-lG2A-I",
+      "created_at": "2026-05-25T12:00:00Z",
+      "updated_at": "2026-06-02T16:00:00Z"
+    },
+    {
+      "id": "ex8",
+      "name": "Peso Muerto Rumano",
+      "category": "Fuerza",
+      "muscles": "Isquiotibiales, Glúteos",
+      "description": "Variante de peso muerto que enfatiza la cadena posterior. Mantén una ligera flexión de rodilla.",
+      "image_url": "",
+      "video_url": "https://www.youtube.com/watch?v=7wNoTbVzQbI",
+      "created_at": "2026-05-30T08:00:00Z",
+      "updated_at": "2026-06-01T12:00:00Z"
+    },
+    {
+      "id": "ex2",
+      "name": "Sprint por Intervalos",
+      "category": "Cardio",
+      "muscles": "Cuerpo Completo, Aeróbico",
+      "description": "Entrenamiento de alta intensidad en cinta o pista. Alterna sprints máximos con recuperación activa.",
+      "image_url": "https://lh3.googleusercontent.com/aida/AP1WRLs1ywmbimwabWLl3ww787vOEKXmmR6lV4f9C_wwFD0qTSsTpjVcQgL2OoBrwQ8m7RxpLPvLw0b8jcnWUc6iDPjmVDKbZg3Nf3FeQaTgIHrJ6BTy-7EAzVvFSDZOMTKzPdLVMNS1yENLYF9Evl4mpzh3n7rjWz7-y-CDjYjVZsvwYU2GEOJw5vbZDbquDhVpEDcaD9d9BdpJd4LPoMLWFvQmzbxZHEYKIABrdum7pYl9_iDPRaoG81zuUmE",
+      "video_url": "https://www.youtube.com/watch?v=qaCwWDvjnSA",
+      "created_at": "2026-05-18T08:00:00Z",
+      "updated_at": "2026-05-30T11:00:00Z"
+    },
+    {
+      "id": "ex5",
+      "name": "Salto de Comba Rápido",
+      "category": "Cardio",
+      "muscles": "Cuerpo Completo, Coordinación",
+      "description": "Ejercicio cardiovascular de alto impacto. Mantén un ritmo constante y utiliza la muñeca para girar la cuerda.",
+      "image_url": "https://lh3.googleusercontent.com/aida/AP1WRLtbsWZx6VBJ-XQA-986a5DjIO5hzndf7zCpTFefwhHw9XYJMM1a9tvy9WUetcPEJ8QVxKLqFrN4AkXl9Zqn5Djy-tItrT1wtyyDYwOSQbt3zRCzYF5kbtMhYmFoJPk1JHVG8Exb5-B7f1BbebNtxUWW10hfNE_Rt_H4VccQtIaSlwkd2gWFT5dYsMCmOTbmvSIwPtgn8H1XwkMHufwxUYNIf_6mjU7P_WF9QmyJLs2Knpg6NpTooHRQGIo",
+      "video_url": "",
+      "created_at": "2026-05-15T09:00:00Z",
+      "updated_at": "2026-05-28T13:00:00Z"
+    },
+    {
+      "id": "ex7",
+      "name": "Swing con Pesa Rusa",
+      "category": "Fuerza",
+      "muscles": "Cadena Posterior, Glúteos",
+      "description": "Movimiento balístico de cadera. La potencia debe venir de las caderas, no de los brazos.",
+      "image_url": "https://lh3.googleusercontent.com/aida/AP1WRLtf2LXWFBYuLohr1sGMY8F3yppWX9wMJ7yTE0ghCnPPSz6tsQVpKN_WjuiLTKK3il06TAYrK6Derug9f0Nv5Vn_0k_KX0fXdGyG2-bkZjmL5Q9aZpP9-82HKMxOEulhBv9W0GBjzgMFGTpqDNIiOm5_xcDOXlZLh3ht5Jp9ZrddMT4Rc5L_WCJpKhn3Fik_QCNlVooXg6vS8AmFs0PDQpMmOkKU9anh1J-YWIzL-R8NjQWicFCEj26zaQ",
+      "video_url": "",
+      "created_at": "2026-05-10T11:00:00Z",
+      "updated_at": "2026-05-22T09:00:00Z"
+    },
+    {
+      "id": "ex6",
+      "name": "Dominada con Lastre",
+      "category": "Fuerza",
+      "muscles": "Dorsal Ancho, Bíceps",
+      "description": "Dominada clásica con peso adicional. Agarre prono y activación escapular al inicio del movimiento.",
+      "image_url": "https://lh3.googleusercontent.com/aida/AP1WRLu_jAAsEppFSgUwyAak-IaRBNYMd3XIRk97oo4_iwRjjf1rnEvrzEY7KZdqQgAylsNU0Rj9zCbrq0qmdI7lYx3oKvS1sQkfvme7t9swCvWyBDUty2A63_RlDt1tlQTuZIAoG3oOajnlPWVC5CIgqANVWj7JimI1g8jN8XOr5U31BfRS5PdhdE6iqoZ5UL7MUjkU5IOneboC90ucojwPrmLIDXbgrveIAhIdHnQnswlKSs7QUMvsd0fZdAE",
+      "video_url": "https://www.youtube.com/watch?v=eGo4I5rX1mk",
+      "created_at": "2026-04-20T10:00:00Z",
+      "updated_at": "2026-05-20T15:00:00Z"
+    }
+  ],
+  "routines": [
+    {
+      "id": "rt2",
+      "name": "Cardio HIIT 20min",
+      "category": "Cardio",
+      "created_at": "2026-06-03T14:00:00Z",
+      "updated_at": "2026-06-25T14:35:33.792Z",
+      "exercises": [
+        {
+          "id": 6,
+          "routine_id": "rt2",
+          "exercise_id": "ex2",
+          "sets": 8,
+          "reps": "30s",
+          "rest": "30s",
+          "sort_order": 0,
+          "exercise_name": "Sprint por Intervalos"
+        },
+        {
+          "id": 7,
+          "routine_id": "rt2",
+          "exercise_id": "ex5",
+          "sets": 8,
+          "reps": "30s",
+          "rest": "30s",
+          "sort_order": 1,
+          "exercise_name": "Salto de Comba Rápido"
+        }
+      ]
+    },
+    {
+      "id": "rt1",
+      "name": "Full Body Principiante",
+      "category": "Full Body",
+      "created_at": "2026-06-01T10:00:00Z",
+      "updated_at": "2026-06-01T10:00:00Z",
+      "exercises": [
+        {
+          "id": 1,
+          "routine_id": "rt1",
+          "exercise_id": "ex1",
+          "sets": 3,
+          "reps": "10-12",
+          "rest": "90s",
+          "sort_order": 0,
+          "exercise_name": "Sentadilla con Barra"
+        },
+        {
+          "id": 2,
+          "routine_id": "rt1",
+          "exercise_id": "ex4",
+          "sets": 3,
+          "reps": "10-12",
+          "rest": "90s",
+          "sort_order": 1,
+          "exercise_name": "Press de Banca con Mancuernas"
+        },
+        {
+          "id": 3,
+          "routine_id": "rt1",
+          "exercise_id": "ex7",
+          "sets": 3,
+          "reps": "15",
+          "rest": "60s",
+          "sort_order": 2,
+          "exercise_name": "Swing con Pesa Rusa"
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "id": "cl2",
+      "name": "Carlos López",
+      "email": "carlos@email.com",
+      "phone": "+52 555 444 5566",
+      "notes": "Enfocado en rendimiento deportivo.",
+      "pago_inicio": "",
+      "pago_fin": "",
+      "created_at": "2026-05-25T10:00:00Z",
+      "updated_at": "2026-05-25T10:00:00Z",
+      "password": "carlos01",
+      "fecha_nacimiento": "",
+      "streak": 0,
+      "assignedRoutines": [
+        "rt2"
+      ]
+    },
+    {
+      "id": "cl1",
+      "name": "María García",
+      "email": "maria@email.com",
+      "phone": "+52 555 111 2233",
+      "notes": "Objetivo: pérdida de peso y tonificación.",
+      "pago_inicio": "",
+      "pago_fin": "",
+      "created_at": "2026-05-20T09:00:00Z",
+      "updated_at": "2026-05-20T09:00:00Z",
+      "password": "maria2026",
+      "fecha_nacimiento": "",
+      "streak": 0,
+      "assignedRoutines": [
+        "rt1"
+      ]
+    }
+  ],
+  "workout_logs": [
+    {
+      "id": "mqr5lz5jp1b7",
+      "client_id": "cl1",
+      "routine_id": "rt1",
+      "started_at": "2026-06-23T21:26:01.015Z",
+      "completed_at": null,
+      "status": "in_progress",
+      "routine_name": "Full Body Principiante"
+    }
+  ],
+  "weekly_schedules": [],
+  "exported_at": "2026-06-25T14:35:33.821Z"
+}

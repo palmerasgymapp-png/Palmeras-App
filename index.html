@@ -531,20 +531,35 @@ function isGitHubPages() {
   return window.location.hostname.includes('github.io') || window.location.hostname.includes('pages.github');
 }
 
+function hasLocalData() {
+  return getPreviewData('exercises') && getPreviewData('routines') && getPreviewData('clients');
+}
+
+async function syncFromGitHub() {
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/palmerasgymapp-png/Palmeras-App/master/data/data.json');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.exercises) setPreviewData('exercises', data.exercises);
+      if (data.routines) setPreviewData('routines', data.routines);
+      if (data.clients) setPreviewData('clients', data.clients);
+      if (data.weekly_schedules) setPreviewData('weekly', data.weekly_schedules);
+      if (data.workout_logs) setPreviewData('workout_logs', data.workout_logs);
+      showToast('Datos restaurados desde GitHub', 'cloud_download');
+      return true;
+    }
+  } catch (e) {
+    console.warn('Error al sincronizar desde GitHub:', e.message);
+    showToast('Error al conectar con GitHub', 'error', 'text-error');
+    return false;
+  }
+}
+
 async function initLocalData() {
   if (isGitHubPages()) {
-    try {
-      const res = await fetch('https://raw.githubusercontent.com/palmerasgymapp-png/Palmeras-App/master/data/data.json');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.exercises) setPreviewData('exercises', data.exercises);
-        if (data.routines) setPreviewData('routines', data.routines);
-        if (data.clients) setPreviewData('clients', data.clients);
-        if (data.weekly_schedules) setPreviewData('weekly', data.weekly_schedules);
-        if (data.workout_logs) setPreviewData('workout_logs', data.workout_logs);
-        return;
-      }
-    } catch (e) { console.warn('GitHub Pages sync error, using local data:', e.message); }
+    if (hasLocalData()) return; // preserve local changes across refreshes
+    await syncFromGitHub();
+    if (hasLocalData()) return;
   }
   if (!getPreviewData('exercises')) setPreviewData('exercises', MOCK_EXERCISES);
   if (!getPreviewData('routines')) setPreviewData('routines', MOCK_ROUTINES);
@@ -1707,6 +1722,19 @@ async function renderSettings() {
       </button>
     </div>
   </div>
+
+  ${isGitHubPages() ? `
+  <!-- GitHub Pages Data Source -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-primary-fixed">cloud_download</span> Datos del Dominio
+    </h3>
+    <p class="text-caption text-on-surface-variant mb-md">Los datos se guardan en el navegador. Puedes restaurar los &uacute;ltimos datos publicados desde el servidor original (se perder&aacute;n los cambios locales).</p>
+    <button onclick="syncFromGitHub()" class="bg-primary-fixed text-on-primary-fixed px-md py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:brightness-110 transition-all">
+      <span class="material-symbols-outlined">cloud_download</span> Restaurar desde GitHub
+    </button>
+  </div>
+  ` : ''}
 
   <!-- Network Connection -->
   <div class="tonal-elevation-1 rounded-xl p-md">

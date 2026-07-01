@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.palmerasgymapp_png.twa",
+        "sha256_cert_fingerprints": ["1E:2C:F3:CC:71:42:0A:0A:69:7B:9C:96:E3:45:29:DC:C6:FC:90:45:6D:AA:4F:15:FE:22:E1:B8:AC:5A:6D:9F"]
+      }
+    }]

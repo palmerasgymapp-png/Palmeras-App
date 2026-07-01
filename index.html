@@ -7,6 +7,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
 tailwind.config = {
   darkMode: "class",
@@ -135,10 +136,46 @@ body.electron-mode .header-section { margin-top: 36px; }
 </head>
 <body class="overflow-hidden">
 
+<!-- Password Gate -->
+<div id="passwordGate" class="fixed inset-0 z-[9999] flex items-center justify-center bg-surface" style="display:none">
+  <div class="w-full max-w-sm mx-md text-center">
+    <img src="logo.png" alt="Palmeras Gym" class="h-16 w-auto mx-auto block mb-lg" />
+    <p class="font-headline-md text-[18px] text-on-surface mb-sm">Acceso al Panel</p>
+    <p class="text-caption text-on-surface-variant mb-md">Ingresa la contrase&ntilde;a para continuar</p>
+    <input id="gatePasswordInput" type="password" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md text-center mb-sm focus:outline-none focus:border-primary-fixed" placeholder="Contrase&ntilde;a" autocomplete="off" onkeydown="if(event.key==='Enter')submitGatePassword()"/>
+    <p id="gatePasswordError" class="text-caption text-error text-center mb-sm hidden">Contrase&ntilde;a incorrecta</p>
+    <button onclick="submitGatePassword()" class="w-full bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all active:scale-95">Ingresar</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  const gate = document.getElementById('passwordGate');
+  const input = document.getElementById('gatePasswordInput');
+  const error = document.getElementById('gatePasswordError');
+  const PASSWORD = 'Juan888';
+  if (sessionStorage.getItem('gate_authenticated') === '1') return;
+  gate.style.display = 'flex';
+  document.body.classList.add('overflow-hidden');
+  setTimeout(function() { input.focus(); }, 100);
+  window.submitGatePassword = function() {
+    if (input.value === PASSWORD) {
+      sessionStorage.setItem('gate_authenticated', '1');
+      gate.style.display = 'none';
+      document.body.classList.remove('overflow-hidden');
+    } else {
+      error.classList.remove('hidden');
+      input.value = '';
+      input.focus();
+    }
+  };
+})();
+</script>
+
 <!-- Electron custom title bar (hidden by default) -->
 <div id="electronTitlebar" class="electron-titlebar" style="display:none">
   <div class="electron-titlebar-drag">
-    <span class="material-symbols-outlined text-primary-fixed text-[18px]">fitness_center</span>
+    <img src="logo.png" alt="Palmeras Gym" class="h-7 w-auto block" />
     <span class="font-label-md text-label-md text-on-surface uppercase tracking-widest ml-xs">Palmeras Gym</span>
   </div>
   <div class="electron-titlebar-actions">
@@ -161,8 +198,8 @@ body.electron-mode .header-section { margin-top: 36px; }
 
 <aside id="sidebar" class="h-screen w-64 fixed left-0 top-0 flex flex-col border-r border-outline-variant bg-surface z-50 max-md:-left-full max-md:w-3/4 max-md:transition-all max-md:duration-300 max-md:ease-in-out">
   <div class="p-md">
-    <h1 class="font-display-lg text-primary-fixed tracking-tighter uppercase text-[24px]">Palmeras Gym</h1>
-    <p class="font-label-md text-on-surface-variant text-[10px] tracking-widest uppercase">Terminal de Administración</p>
+    <img src="logo.png" alt="Palmeras Gym" class="h-20 w-auto mx-auto block" />
+    <p class="font-label-md text-on-surface-variant text-[10px] tracking-widest uppercase text-center">Terminal de Administración</p>
   </div>
   <nav id="sidebarNav" class="flex-1 px-sm space-y-xs custom-scrollbar overflow-y-auto">
     <a data-page="dashboard" class="flex items-center gap-sm px-sm py-xs text-on-surface-variant hover:text-primary-fixed transition-colors rounded-lg cursor-pointer" href="#dashboard">
@@ -317,7 +354,7 @@ body.electron-mode .header-section { margin-top: 36px; }
   <div class="tonal-elevation-1 rounded-xl w-full max-w-2xl mx-sm max-h-[90vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
     <div class="flex justify-between items-center p-md border-b border-outline-variant">
       <h3 id="routineModalTitle" class="font-headline-md text-headline-md text-on-surface">Nueva Rutina</h3>
-      <button onclick="closeModal('routineModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
+      <button onclick="pendingWeeklyDay=null;closeModal('routineModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
     </div>
     <form id="routineForm" class="p-md space-y-sm">
       <input type="hidden" id="routineId"/>
@@ -345,7 +382,7 @@ body.electron-mode .header-section { margin-top: 36px; }
         </div>
       </div>
       <div class="flex gap-sm pt-sm">
-        <button type="button" onclick="closeModal('routineModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
+        <button type="button" onclick="pendingWeeklyDay=null;closeModal('routineModal')" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md hover:bg-surface-container transition-colors">Cancelar</button>
         <button type="submit" class="flex-1 bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all">Guardar Rutina</button>
       </div>
     </form>
@@ -377,9 +414,10 @@ body.electron-mode .header-section { margin-top: 36px; }
         <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Notas</label>
         <textarea id="clNotes" rows="2" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed" placeholder="Objetivos, preferencias..."></textarea>
       </div>
+
       <div>
-        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Racha (d&iacute;as)</label>
-        <input id="clStreak" type="number" min="0" value="0" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed"/>
+        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Fecha de Nacimiento</label>
+        <input id="clFechaNac" type="date" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed"/>
       </div>
       <div>
         <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Inicio de Abono</label>
@@ -425,11 +463,11 @@ body.electron-mode .header-section { margin-top: 36px; }
 </div>
 
 <!-- Info Modal -->
-<div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this)closeModal('infoModal')">
+<div id="infoModal" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay" onclick="if(event.target===this){pendingWeeklyDay=null;closeModal('infoModal')}">
   <div class="tonal-elevation-1 rounded-xl w-full max-w-lg mx-sm" onclick="event.stopPropagation()">
     <div class="flex justify-between items-center p-md border-b border-outline-variant">
       <h3 id="infoModalTitle" class="font-headline-md text-headline-md text-on-surface"></h3>
-      <button onclick="closeModal('infoModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
+      <button onclick="pendingWeeklyDay=null;closeModal('infoModal')" class="text-on-surface-variant hover:text-primary-fixed"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div id="infoModalBody" class="p-md space-y-sm text-body-md text-on-surface-variant"></div>
   </div>
@@ -475,9 +513,9 @@ const MOCK_WEEKLY = {
   ]
 };
 const MOCK_CLIENTS = [
-  { id: 'cl1', name: 'María García', email: 'maria@email.com', phone: '+52 555 123 4567', notes: 'Objetivo: pérdida de peso', streak: 15, password: 'maria2026', pago_inicio: '2026-01-01', pago_fin: '2026-12-31', assignedRoutines: ['rt1', 'rt2'], created_at: '2026-01-10T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
-  { id: 'cl2', name: 'Carlos López', email: 'carlos@email.com', phone: '+52 555 987 6543', notes: 'Lesión de rodilla - evitar impacto', streak: 42, password: 'carlos01', pago_inicio: '2026-02-01', pago_fin: '2026-07-31', assignedRoutines: ['rt3'], created_at: '2026-02-05T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
-  { id: 'cl3', name: 'Ana Martínez', email: 'ana@email.com', phone: '+52 555 456 7890', notes: 'Atleta avanzada', streak: 90, password: 'ana2026!', pago_inicio: '2025-06-01', pago_fin: '2026-06-01', assignedRoutines: ['rt1', 'rt3'], created_at: '2025-06-01T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' }
+  { id: 'cl1', name: 'María García', email: 'maria@email.com', phone: '+52 555 123 4567', notes: 'Objetivo: pérdida de peso', password: 'maria2026', pago_inicio: '2026-01-01', pago_fin: '2026-12-31', assignedRoutines: ['rt1', 'rt2'], created_at: '2026-01-10T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'cl2', name: 'Carlos López', email: 'carlos@email.com', phone: '+52 555 987 6543', notes: 'Lesión de rodilla - evitar impacto', password: 'carlos01', pago_inicio: '2026-02-01', pago_fin: '2026-07-31', assignedRoutines: ['rt3'], created_at: '2026-02-05T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' },
+  { id: 'cl3', name: 'Ana Martínez', email: 'ana@email.com', phone: '+52 555 456 7890', notes: 'Atleta avanzada', password: 'ana2026!', pago_inicio: '2025-06-01', pago_fin: '2026-06-01', assignedRoutines: ['rt1', 'rt3'], created_at: '2025-06-01T10:00:00Z', updated_at: '2026-06-01T10:00:00Z' }
 ];
 
 // ====================================================================
@@ -488,7 +526,26 @@ let serverOnline = false;
 function getPreviewData(key) { return JSON.parse(localStorage.getItem('preview_' + key) || 'null'); }
 function setPreviewData(key, data) { localStorage.setItem('preview_' + key, JSON.stringify(data)); }
 
-function initLocalData() {
+// ── GitHub Pages sync: fetch data.json from repo raw URL ──
+function isGitHubPages() {
+  return window.location.hostname.includes('github.io') || window.location.hostname.includes('pages.github');
+}
+
+async function initLocalData() {
+  if (isGitHubPages()) {
+    try {
+      const res = await fetch('https://raw.githubusercontent.com/palmerasgymapp-png/Palmeras-App/master/data/data.json');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.exercises) setPreviewData('exercises', data.exercises);
+        if (data.routines) setPreviewData('routines', data.routines);
+        if (data.clients) setPreviewData('clients', data.clients);
+        if (data.weekly_schedules) setPreviewData('weekly', data.weekly_schedules);
+        if (data.workout_logs) setPreviewData('workout_logs', data.workout_logs);
+        return;
+      }
+    } catch (e) { console.warn('GitHub Pages sync error, using local data:', e.message); }
+  }
   if (!getPreviewData('exercises')) setPreviewData('exercises', MOCK_EXERCISES);
   if (!getPreviewData('routines')) setPreviewData('routines', MOCK_ROUTINES);
   if (!getPreviewData('clients')) setPreviewData('clients', MOCK_CLIENTS);
@@ -538,6 +595,14 @@ async function autoSync() {
     // silent
   }
 }
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.altKey && e.key === 'g') {
+    e.preventDefault();
+    autoSync();
+  }
+});
 
 const API = {
   request: async (url, opts) => serverFetch(url, opts),
@@ -748,7 +813,7 @@ async function renderPage(page) {
       case 'routines': c.innerHTML = await renderRoutines(); break;
       case 'weekly': c.innerHTML = await renderWeekly(); break;
       case 'clients': c.innerHTML = await renderClients(); break;
-      case 'settings': c.innerHTML = await renderSettings(); setTimeout(() => { gitRefreshStatus(); loadGhSync(); }, 100); break;
+      case 'settings': c.innerHTML = await renderSettings(); setTimeout(() => { gitRefreshStatus(); loadGhSync(); loadNetworkInfo(); }, 100); break;
       case 'support': openInfoModal('Soporte', '<p>Centro de ayuda de Palmeras Gym App.</p><p class="mt-sm">• Documentación: <span class="text-primary-fixed">docs.palmerasgym.app</span><br/>• Email: <span class="text-primary-fixed">soporte@palmerasgym.app</span><br/>• Chat en vivo: Lun-Vie 9:00-18:00<br/>• Tiempo de respuesta: &lt; 4h</p>'); navigate(currentPage); break;
       default: navigate('dashboard');
     }
@@ -1133,7 +1198,14 @@ document.getElementById('routineForm').addEventListener('submit', async function
       showToast(`"${created.name}" creada`, 'add_circle');
     }
     closeModal('routineModal');
-    navigate('routines');
+    if (pendingWeeklyDay !== null) {
+      const d = pendingWeeklyDay;
+      pendingWeeklyDay = null;
+      await navigate('weekly');
+      openDayRoutineModal(d);
+    } else {
+      navigate('routines');
+    }
   } catch (e) {
     showToast('Error: ' + e.message, 'error', 'text-error');
   }
@@ -1262,26 +1334,92 @@ async function renderWeekly() {
     </div>`;
 }
 
+let pendingWeeklyDay = null;
+
 async function openDayRoutineModal(dayOfWeek) {
+  pendingWeeklyDay = dayOfWeek;
   const routines = await API.routines.all();
+  const exercises = await API.exercises.all();
   const weekDays = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-  const opts = routines.map(r => `<option value="${r.id}">${r.name} (${r.category||'General'})</option>`).join('');
-  if (!opts) { showToast('No hay rutinas disponibles. Crea una primero.', 'warning', 'text-error'); return; }
+  const exMap = {}; exercises.forEach(e => { exMap[e.id] = e });
+  const listHtml = routines.length === 0
+    ? '<p class="text-caption text-on-surface-variant text-center py-md">No hay rutinas aún</p>'
+    : routines.map((r, i) => {
+        const ecount = (r.exercises || []).length;
+        return `
+          <label class="flex items-start gap-sm p-sm rounded-lg border ${i === 0 ? 'border-primary-fixed bg-primary-fixed/5' : 'border-outline-variant/30'} cursor-pointer hover:bg-surface-container transition-all" onclick="selectWeekRoutine(this, '${r.id}')">
+            <input type="radio" name="weekRoutine" value="${r.id}" class="mt-1 accent-primary-fixed" ${i === 0 ? 'checked' : ''}>
+            <div class="flex-1 min-w-0">
+              <div class="text-body-md text-on-surface font-semibold truncate">${r.name}</div>
+              <div class="text-caption text-on-surface-variant">${r.category || 'General'} · ${ecount} ejercicio${ecount !== 1 ? 's' : ''}</div>
+            </div>
+          </label>`;
+      }).join('');
   openInfoModal(
     'Asignar rutina — ' + weekDays[dayOfWeek],
-    `<p class="text-caption text-on-surface-variant mb-sm">Selecciona la rutina para este d&iacute;a:</p>
-     <select id="dayRoutineSelect" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:outline-none focus:border-primary-fixed mb-sm">${opts}</select>
-     <button onclick="confirmDayRoutine(${dayOfWeek})" class="w-full bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all">Guardar</button>`
+    `<div class="space-y-sm">
+      <button onclick="closeModal('infoModal');openWeeklyNewRoutine()" class="w-full flex items-center justify-center gap-xs py-2 border border-dashed border-primary-fixed/40 rounded-lg text-primary-fixed font-bold text-label-md hover:bg-primary-fixed/5 transition-all"><span class="material-symbols-outlined text-[18px]">add</span>Nueva Rutina</button>
+      <div id="weekRoutineList" class="space-y-xs max-h-64 overflow-y-auto custom-scrollbar pr-xs">${listHtml}</div>
+      <div id="weekSelectedActions" class="flex gap-xs ${routines.length === 0 ? 'hidden' : ''}">
+        <button onclick="editSelectedWeekRoutine()" class="flex-1 py-2 border border-outline-variant rounded-lg text-on-surface-variant font-bold text-label-md hover:text-primary-fixed hover:border-primary-fixed transition-all"><span class="material-symbols-outlined text-[16px] align-middle">edit</span> Editar ejercicios</button>
+      </div>
+      <button id="btnConfirmWeekRoutine" onclick="confirmDayRoutine(${dayOfWeek})" class="w-full bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all ${routines.length === 0 ? 'opacity-50 pointer-events-none' : ''}">Asignar Rutina</button>
+    </div>`
   );
 }
 
-async function confirmDayRoutine(dayOfWeek) {
-  const select = document.getElementById('dayRoutineSelect');
-  if (!select) { closeModal('infoModal'); return; }
-  const routineId = select.value;
-  if (!routineId) { showToast('Selecciona una rutina', 'warning', 'text-error'); return; }
+function selectWeekRoutine(el, id) {
+  document.querySelectorAll('#weekRoutineList label').forEach(l => {
+    l.classList.remove('border-primary-fixed', 'bg-primary-fixed/5');
+    l.classList.add('border-outline-variant/30');
+    l.querySelector('input').checked = false;
+  });
+  el.classList.remove('border-outline-variant/30');
+  el.classList.add('border-primary-fixed', 'bg-primary-fixed/5');
+  el.querySelector('input').checked = true;
+  document.getElementById('btnConfirmWeekRoutine').classList.remove('opacity-50', 'pointer-events-none');
+}
+
+async function openWeeklyNewRoutine() {
   try {
-    await API.weeklySchedule.set(weeklyClientId, dayOfWeek, routineId);
+    routineExercises = [];
+    const form = document.getElementById('routineForm');
+    form.reset();
+    document.getElementById('routineId').value = '';
+    document.getElementById('routineModalTitle').textContent = 'Nueva Rutina';
+    openModal('routineModal');
+    await populateRoutineForm();
+  } catch (e) {
+    showToast('Error al cargar: ' + e.message, 'error', 'text-error');
+  }
+}
+
+async function editSelectedWeekRoutine() {
+  try {
+    const sel = document.querySelector('input[name="weekRoutine"]:checked');
+    if (!sel) { showToast('Selecciona una rutina primero', 'warning', 'text-error'); return; }
+    closeModal('infoModal');
+    const id = sel.value;
+    const rt = await API.routines.get(id);
+    if (!rt) { showToast('Rutina no encontrada', 'error', 'text-error'); return; }
+    document.getElementById('routineModalTitle').textContent = 'Editar Rutina';
+    document.getElementById('routineId').value = id;
+    document.getElementById('rtName').value = rt.name;
+    document.getElementById('rtCategory').value = rt.category || '';
+    routineExercises = (rt.exercises||[]).map(e => ({ exerciseId: e.exercise_id, sets: e.sets || 3, reps: e.reps || '10-12', rest: e.rest || '60s' }));
+    openModal('routineModal');
+    await populateRoutineForm();
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error', 'text-error');
+  }
+}
+
+async function confirmDayRoutine(dayOfWeek) {
+  const sel = document.querySelector('input[name="weekRoutine"]:checked');
+  if (!sel) { showToast('Selecciona una rutina', 'warning', 'text-error'); return; }
+  try {
+    await API.weeklySchedule.set(weeklyClientId, dayOfWeek, sel.value);
+    pendingWeeklyDay = null;
     closeModal('infoModal');
     showToast('Rutina asignada', 'check_circle');
     navigate('weekly');
@@ -1377,7 +1515,7 @@ async function openClientModal(id) {
       document.getElementById('clEmail').value = c.email || '';
       document.getElementById('clPhone').value = c.phone || '';
       document.getElementById('clNotes').value = c.notes || '';
-      document.getElementById('clStreak').value = c.streak || 0;
+      document.getElementById('clFechaNac').value = c.fecha_nacimiento || '';
       document.getElementById('clPagoInicio').value = c.pago_inicio || '';
       document.getElementById('clPagoFin').value = c.pago_fin || '';
       document.getElementById('clPassword').value = c.password || '';
@@ -1398,7 +1536,7 @@ document.getElementById('clientForm').addEventListener('submit', async function(
     email: document.getElementById('clEmail').value.trim(),
     phone: document.getElementById('clPhone').value.trim(),
     notes: document.getElementById('clNotes').value.trim(),
-    streak: parseInt(document.getElementById('clStreak').value) || 0,
+    fecha_nacimiento: document.getElementById('clFechaNac').value,
     pago_inicio: document.getElementById('clPagoInicio').value,
     pago_fin: document.getElementById('clPagoFin').value,
     password: document.getElementById('clPassword').value
@@ -1567,6 +1705,30 @@ async function renderSettings() {
       <button onclick="saveGhSync()" class="bg-primary-fixed text-on-primary-fixed px-md py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:brightness-110 transition-all self-start">
         <span class="material-symbols-outlined">save</span> Guardar configuraci&oacute;n
       </button>
+    </div>
+  </div>
+
+  <!-- Network Connection -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-primary-fixed">wifi</span> Conexi&oacute;n de Red
+    </h3>
+    <p class="text-caption text-on-surface-variant mb-md">Los clientes pueden acceder a la app m&oacute;vil desde su celular escaneando el c&oacute;digo QR o ingresando la direcci&oacute;n IP.</p>
+    <div id="networkInfoContent" class="text-caption text-on-surface-variant">
+      <span class="inline-flex items-center gap-xs"><span class="loading-spinner w-4 h-4"></span> Obteniendo informaci&oacute;n de red...</span>
+    </div>
+    <div id="qrCodeContainer" class="mt-md flex flex-col items-center" style="display:none">
+      <div id="qrcode"></div>
+      <p id="qrUrlText" class="text-body-md text-on-surface mt-sm text-center font-bold"></p>
+      <p class="text-caption text-on-surface-variant mt-xs text-center">Escanea con tu celular para abrir la app m&oacute;vil</p>
+      <div class="flex gap-sm mt-sm justify-center">
+        <button onclick="copyNetworkUrl()" class="border border-outline-variant text-on-surface px-sm py-xs rounded-lg text-label-md flex items-center gap-xs hover:bg-surface-container transition-all">
+          <span class="material-symbols-outlined text-[16px]">content_copy</span> Copiar direcci&oacute;n
+        </button>
+        <button onclick="printQR()" class="bg-secondary text-on-secondary-fixed px-sm py-xs rounded-lg font-bold text-label-md flex items-center gap-xs hover:brightness-110 transition-all">
+          <span class="material-symbols-outlined text-[16px]">print</span> Imprimir QR
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1742,7 +1904,21 @@ async function deleteBackupFile(name) {
 // GITHUB BACKUP SYNC
 // ====================================================================
 async function loadGhSync() {
-  document.getElementById('ghSyncStatus').innerHTML = '<span class="text-on-surface-variant">Usa el panel de administraci&oacute;n local (node server.js) para gestionar sincronizaci&oacute;n con GitHub</span>';
+  const tokenInput = document.getElementById('ghTokenInput');
+  const enabledCheck = document.getElementById('ghEnabledCheck');
+  const statusEl = document.getElementById('ghSyncStatus');
+  try {
+    const cfg = await serverFetch('/api/backup/ghsync');
+    tokenInput.value = cfg.token || '';
+    enabledCheck.checked = cfg.enabled;
+    statusEl.innerHTML = cfg.enabled
+      ? '<span class="text-success">Sincronizaci&oacute;n activa</span>'
+      : '<span class="text-on-surface-variant">Sincronizaci&oacute;n desactivada</span>';
+  } catch {
+    tokenInput.value = '';
+    enabledCheck.checked = false;
+    statusEl.innerHTML = '<span class="text-on-surface-variant">Servidor no disponible</span>';
+  }
 }
 async function saveGhSync() {
   try {
@@ -1754,6 +1930,69 @@ async function saveGhSync() {
       ? '<span class="text-success">Sincronizaci&oacute;n activa</span> &middot; Token: ' + r.token
       : '<span class="text-on-surface-variant">Sincronizaci&oacute;n desactivada</span>';
   } catch (e) { showToast('Error: ' + e.message, 'error', 'text-error'); }
+}
+
+// ── Network Info ──
+async function loadNetworkInfo() {
+  const container = document.getElementById('networkInfoContent');
+  const qrContainer = document.getElementById('qrCodeContainer');
+  try {
+    const info = await API.request('/api/server/info');
+    container.innerHTML = `
+      <div class="grid grid-cols-2 gap-sm">
+        <div class="bg-surface-container-low rounded-lg p-sm text-center">
+          <div class="text-primary-fixed font-bold text-[16px] font-display-lg">${info.ip}</div>
+          <div class="text-on-surface-variant">Direcci&oacute;n IP</div>
+        </div>
+        <div class="bg-surface-container-low rounded-lg p-sm text-center">
+          <div class="text-primary-fixed font-bold text-[16px] font-display-lg">${info.port}</div>
+          <div class="text-on-surface-variant">Puerto</div>
+        </div>
+      </div>
+    `;
+    const mobileUrl = info.url + '/Movil/movil.html';
+    document.getElementById('qrUrlText').textContent = mobileUrl;
+    // Generate QR
+    const qrEl = document.getElementById('qrcode');
+    qrEl.innerHTML = '';
+    new QRCode(qrEl, { text: mobileUrl, width: 200, height: 200, colorDark: '#a855f7', colorLight: '#000000' });
+    qrContainer.style.display = 'flex';
+  } catch (e) {
+    container.innerHTML = '<span class="text-on-surface-variant">No se pudo obtener la informaci&oacute;n de red.</span>';
+  }
+}
+function copyNetworkUrl() {
+  const txt = document.getElementById('qrUrlText').textContent;
+  navigator.clipboard.writeText(txt).then(() => showToast('Direcci&oacute;n copiada', 'content_copy', 'text-primary-fixed'));
+}
+function printQR() {
+  const qrEl = document.getElementById('qrcode').querySelector('canvas') || document.getElementById('qrcode').querySelector('img');
+  const url = document.getElementById('qrUrlText').textContent;
+  const qrDataUrl = qrEl ? qrEl.toDataURL('image/png') : '';
+  const win = window.open('', '_blank', 'width=400,height=600');
+  win.document.write(`
+    <html><head><title>Imprimir QR - Palmeras Gym</title>
+    <style>
+      body{margin:0;padding:20px;font-family:Arial,sans-serif;text-align:center;background:#fff}
+      .container{max-width:400px;margin:0 auto}
+      img.logo{width:180px;margin-bottom:20px}
+      img.qr{width:280px;margin-bottom:16px;image-rendering:pixelated}
+      .url{font-size:14px;color:#333;word-break:break-all;margin-bottom:20px;padding:8px;border:1px solid #ddd;border-radius:6px;background:#f9f9f9}
+      .title{font-size:18px;font-weight:bold;color:#a855f7;margin-bottom:4px}
+      .sub{font-size:12px;color:#666;margin-bottom:20px}
+      @media print{body{margin:0;padding:0}.container{padding:10px}}
+    </style></head><body>
+    <div class="container">
+      <img class="logo" src="logo.png" alt="Palmeras Gym"/>
+      <div class="title">Palmeras Gym</div>
+      <div class="sub">Escanea para abrir la app móvil</div>
+      ${qrDataUrl ? `<img class="qr" src="${qrDataUrl}" alt="QR"/>` : ''}
+      <div class="url">${url}</div>
+    </div>
+    <script>window.onload=function(){window.print()}<\/script>
+    </body></html>
+  `);
+  win.document.close();
 }
 
 // ====================================================================

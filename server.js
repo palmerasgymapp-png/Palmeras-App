@@ -1,15 +1,41 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
+const cors = require('cors');
 const db = require('./database');
+const ghsync = require('./ghsync');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cors());
 
 // Serve mobile app folder for direct access (GitHub Pages compatible path)
 app.use('/Movil', express.static(path.join(__dirname, 'Movil')));
+
+// Serve root-level static assets
+app.get('/logo.png', (req, res) => { res.sendFile(path.join(__dirname, 'logo.png')); });
+app.get('/logo_small.png', (req, res) => { res.sendFile(path.join(__dirname, 'logo_small.png')); });
+
+// Server info (LAN IP and port for QR / mobile client access)
+app.get('/api/server/info', (req, res) => {
+  try {
+    const nets = os.networkInterfaces();
+    let ip = '127.0.0.1';
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          ip = net.address;
+          break;
+        }
+      }
+      if (ip !== '127.0.0.1') break;
+    }
+    res.json({ ip, port: PORT, url: `http://${ip}:${PORT}` });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -188,11 +214,26 @@ app.get('/api/clients/:id/routines-detail', (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+let lastAutoBackup = 0;
+function autoBackup() {
+  const now = Date.now();
+  if (now - lastAutoBackup < 300000) return;
+  lastAutoBackup = now;
+  try {
+    const backup = db.createBackup();
+    const dataJson = JSON.stringify(db.exportAll(), null, 2);
+    ghsync.syncBackup(backup.name, dataJson, (err) => {
+      if (err) console.error('Auto-sync error:', err.message);
+    });
+  } catch (e) { console.error('Auto-backup error:', e.message); }
+}
+
 app.post('/api/clients/:id/workout/start', (req, res) => {
   try {
     const { routineId } = req.body;
     if (!routineId) return res.status(400).json({ error: 'routineId required' });
     const log = db.startWorkout(req.params.id, routineId);
+    autoBackup();
     res.status(201).json(log);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -201,6 +242,7 @@ app.post('/api/workout/:logId/complete', (req, res) => {
   try {
     const log = db.completeWorkout(req.params.logId);
     if (!log) return res.status(404).json({ error: 'Workout log not found' });
+    autoBackup();
     res.json(log);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -223,8 +265,6 @@ app.get('/api/clients/:id/workout/active', (req, res) => {
 const multer = require('multer');
 const UPLOAD_DIR = path.join(process.env.DATA_DIR || __dirname, 'uploads');
 const upload = multer({ dest: UPLOAD_DIR, limits: { fileSize: 100 * 1024 * 1024 } });
-const ghsync = require('./ghsync');
-
 app.get('/api/backup/info', (req, res) => {
   try { res.json(db.getDbInfo()); }
   catch (e) { res.status(500).json({ error: e.message }); }
@@ -242,11 +282,12 @@ app.get('/api/backup/download', (req, res) => {
 app.post('/api/backup/create', (req, res) => {
   try {
     const backup = db.createBackup();
-    ghsync.syncBackup(backup.name, (err, msg) => {
+    const dataJson = JSON.stringify(db.exportAll(), null, 2);
+    ghsync.syncBackup(backup.name, dataJson, (err, msg) => {
       if (err) console.error('GitHub sync error:', err.message);
       else if (msg) console.log('GitHub sync:', msg);
     });
-    res.json(backup);
+    res.json(Object.assign(backup, { data: JSON.parse(dataJson) }));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -6,34 +6,55 @@
   "start_url": "movil.html",
   "scope": ".",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "browser"],
   "orientation": "portrait",
-  "theme_color": "#a855f7",
+  "lang": "es",
+  "dir": "ltr",
+  "theme_color": "#000000",
   "background_color": "#000000",
   "categories": ["fitness", "health", "sports"],
+  "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
-      "src": "icons/png/android-chrome-192x192.png",
+      "src": "icons/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/png/android-chrome-512x512.png",
+      "src": "icons/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/png/android-chrome-192x192.png",
+      "src": "icons/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "icons/png/android-chrome-512x512.png",
+      "src": "icons/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/login.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Pantalla de inicio de sesión"
+    },
+    {
+      "src": "screenshots/dashboard.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Panel de entrenamiento"
     }
   ]
 }

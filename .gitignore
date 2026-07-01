@@ -6,3 +6,4 @@ App/
 *.db
 .ghsync.json
 token_github.txt
+data/

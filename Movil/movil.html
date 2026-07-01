@@ -4,15 +4,15 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 <link rel="manifest" href="manifest.json"/>
-<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');</script>
+<script>if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('SW registration failed:',e)})}</script>
 <meta name="theme-color" content="#000000"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-title" content="Palmeras Gym"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<link rel="apple-touch-icon" sizes="120x120" href="icons/png/apple-touch-icon-120x120.png"/>
-<link rel="apple-touch-icon" sizes="152x152" href="icons/png/apple-touch-icon-152x152.png"/>
-<link rel="apple-touch-icon" sizes="167x167" href="icons/png/apple-touch-icon-167x167.png"/>
-<link rel="apple-touch-icon" sizes="180x180" href="icons/png/apple-touch-icon-180x180.png"/>
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon-120x120.png"/>
+<link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152x152.png"/>
+<link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167x167.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180x180.png"/>
 <title>Palmeras Gym - App Cliente</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -57,22 +57,24 @@ body { background: #000; color: #e4e2e1; font-family: 'Inter', sans-serif; -webk
   <!-- Login Screen -->
   <div id="loginScreen" class="flex-1 flex flex-col items-center justify-center px-md" style="display:none">
     <div class="text-center mb-lg">
-      <h1 class="font-display-lg-mobile text-display-lg-mobile text-primary-fixed tracking-tighter uppercase">Palmeras Gym</h1>
-      <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mt-xs">App Cliente</p>
+      <img src="logo.png" alt="Palmeras Gym" class="h-16 w-auto mx-auto block" />
+      <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mt-sm">App Cliente</p>
     </div>
     <div id="loginCard" class="w-full max-w-sm bento-card rounded-xl p-md">
-      <div id="clientListSection">
-        <p class="font-headline-md text-[18px] text-on-surface mb-sm text-center">Selecciona tu perfil</p>
-        <div id="clientList" class="space-y-xs max-h-[50vh] md:max-h-64 overflow-y-auto custom-scrollbar"></div>
-        <p id="loginError" class="text-caption text-error text-center mt-sm hidden">No se pudieron cargar los clientes.</p>
+      <div id="clientIdSection">
+        <p class="font-headline-md text-[18px] text-on-surface mb-sm text-center">Ingresa tu n&uacute;mero de tel&eacute;fono</p>
+        <p class="text-caption text-on-surface-variant text-center mb-sm">Usa el n&uacute;mero que registraste en el gimnasio.</p>
+        <input id="clientIdInput" type="tel" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md text-center mb-sm focus:outline-none focus:border-primary-fixed" placeholder="Ej: 5551234567" autocomplete="tel" onkeydown="if(event.key==='Enter')submitClientId()"/>
+        <button onclick="submitClientId()" class="w-full bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all active:scale-95">Continuar</button>
+        <p id="clientIdError" class="text-caption text-error text-center mt-sm hidden">N&uacute;mero no encontrado. Verifica con tu entrenador.</p>
       </div>
       <div id="passwordSection" style="display:none">
         <p class="font-headline-md text-[18px] text-on-surface mb-sm text-center">Ingresa tu contrase&ntilde;a</p>
-        <p id="passwordClientName" class="text-body-md text-primary-fixed text-center font-bold mb-sm"></p>
+        <p id="clientNameDisplay" class="text-body-md text-primary-fixed text-center font-bold mb-sm"></p>
         <input id="passwordInput" type="password" class="w-full bg-surface-container-low border border-outline-variant rounded-lg py-2 px-3 text-body-md text-center mb-sm focus:outline-none focus:border-primary-fixed" placeholder="Contrase&ntilde;a" autocomplete="off" onkeydown="if(event.key==='Enter')submitPassword()"/>
         <button onclick="submitPassword()" class="w-full bg-primary-fixed text-on-primary-fixed py-2 rounded-lg font-bold text-label-md primary-glow hover:brightness-110 transition-all active:scale-95">Ingresar</button>
         <p id="passwordError" class="text-caption text-error text-center mt-sm hidden">Contrase&ntilde;a incorrecta</p>
-        <button onclick="cancelPassword()" class="w-full text-caption text-on-surface-variant mt-sm hover:text-primary-fixed transition-colors">← Volver</button>
+        <button onclick="cancelPassword()" class="w-full text-caption text-on-surface-variant mt-sm hover:text-primary-fixed transition-colors">← Cambiar cliente</button>
       </div>
       <div id="blockedSection" style="display:none">
         <div class="text-center">
@@ -96,8 +98,7 @@ body { background: #000; color: #e4e2e1; font-family: 'Inter', sans-serif; -webk
     <!-- Header -->
     <header class="fixed top-0 w-full z-50 bg-surface flex justify-between items-center px-sm py-xs safe-top">
       <div class="flex items-center gap-xs">
-        <span class="material-symbols-outlined text-primary-fixed">fitness_center</span>
-        <h1 class="font-headline-md-mobile text-[18px] font-extrabold text-primary-fixed tracking-tight">Palmeras Gym</h1>
+        <img src="logo_mobile.png" alt="Palmeras Gym" class="h-9 w-auto block" />
       </div>
       <div class="flex items-center gap-sm">
         <span id="btnLogout" class="material-symbols-outlined text-on-surface-variant active:scale-95 transition-transform cursor-pointer">logout</span>
@@ -167,6 +168,29 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 function getPreviewData(key) { return JSON.parse(localStorage.getItem('preview_' + key) || 'null'); }
 function setPreviewData(key, data) { localStorage.setItem('preview_' + key, JSON.stringify(data)); }
 
+// ── GitHub Pages sync: fetch data.json from repo raw URL ──
+(function loadFromGitHubPages() {
+  if (window.location.hostname.includes('github.io') || window.location.hostname.includes('pages.github')) {
+    fetch('https://raw.githubusercontent.com/palmerasgymapp-png/Palmeras-App/master/data/data.json')
+      .then(r => r.ok ? r.json() : Promise.reject('not ok'))
+      .then(data => {
+        if (data.exercises && data.exercises.length) setPreviewData('exercises', data.exercises);
+        if (data.routines && data.routines.length) setPreviewData('routines', data.routines);
+        if (data.clients && data.clients.length) setPreviewData('clients', data.clients);
+        if (data.weekly_schedules) {
+          const byClient = {};
+          data.weekly_schedules.forEach(s => {
+            if (!byClient[s.client_id]) byClient[s.client_id] = [];
+            byClient[s.client_id].push({ day_of_week: s.day_of_week, routine_id: s.routine_id });
+          });
+          setPreviewData('weekly', byClient);
+        }
+        if (data.workout_logs) setPreviewData('workouts', data.workout_logs);
+      })
+      .catch(() => {}); // fallback to mock data below
+  }
+})();
+
 // ── Mock data ──
 if (!getPreviewData('exercises')) setPreviewData('exercises', [
   {id:'ex1',name:'Press Banca',category:'Fuerza',description:'Ejercicio de pecho con barra',image_url:null,video_url:'https://youtu.be/rT7DgCr-3pg',created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'},
@@ -184,15 +208,29 @@ if (!getPreviewData('routines')) setPreviewData('routines', [
   {id:'rt3',name:'Piernas',category:'Fuerza',exercises:[{exercise_id:'ex2',sets:4,reps:'8-10',rest:'120s',order:1},{exercise_id:'ex4',sets:3,reps:'10-12',rest:'90s',order:2}],created_at:'2026-01-01T00:00:00Z',updated_at:'2026-01-01T00:00:00Z'}
 ]);
 if (!getPreviewData('clients')) setPreviewData('clients', [
-  {id:'cl1',name:'Carlos López',email:'carlos@email.com',phone:'+52 555 123 4567',notes:'Principiante, buena actitud',streak:15,password:'gym2026!',pago_inicio:'2026-01-01',pago_fin:'2026-12-31',assignedRoutines:['rt1','rt2'],created_at:'2026-01-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'},
-  {id:'cl2',name:'María García',email:'maria@email.com',phone:'+52 555 987 6543',notes:'Enfocada en pérdida de peso',streak:45,password:'maria2026',pago_inicio:'2026-03-01',pago_fin:'2026-09-01',assignedRoutines:['rt2','rt3'],created_at:'2026-03-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'},
-  {id:'cl3',name:'Pedro Sánchez',email:'pedro@email.com',phone:'+52 555 456 7890',notes:'Atleta avanzado',streak:90,password:'pedro2026',pago_inicio:'2025-06-01',pago_fin:'2026-06-01',assignedRoutines:['rt1','rt3'],created_at:'2025-06-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'}
+  {id:'cl1',name:'Carlos López',email:'carlos@email.com',phone:'5551234567',notes:'Principiante, buena actitud',password:'gym2026!',pago_inicio:'2026-01-01',pago_fin:'2026-12-31',assignedRoutines:['rt1','rt2'],created_at:'2026-01-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'},
+  {id:'cl2',name:'María García',email:'maria@email.com',phone:'5559876543',notes:'Enfocada en pérdida de peso',password:'maria2026',pago_inicio:'2026-03-01',pago_fin:'2026-09-01',assignedRoutines:['rt2','rt3'],created_at:'2026-03-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'},
+  {id:'cl3',name:'Pedro Sánchez',email:'pedro@email.com',phone:'5554567890',notes:'Atleta avanzado',password:'pedro2026',pago_inicio:'2025-06-01',pago_fin:'2026-06-01',assignedRoutines:['rt1','rt3'],created_at:'2025-06-01T10:00:00Z',updated_at:'2026-06-01T10:00:00Z'}
 ]);
 if (!getPreviewData('weekly')) setPreviewData('weekly', {cl1:[{day_of_week:0,routine_id:'rt1'},{day_of_week:2,routine_id:'rt2'},{day_of_week:4,routine_id:'rt1'}],cl2:[{day_of_week:1,routine_id:'rt2'},{day_of_week:3,routine_id:'rt3'},{day_of_week:5,routine_id:'rt2'}],cl3:[{day_of_week:0,routine_id:'rt1'},{day_of_week:2,routine_id:'rt3'},{day_of_week:4,routine_id:'rt1'},{day_of_week:6,routine_id:'rt3'}]});
 if (!getPreviewData('workouts')) setPreviewData('workouts', []);
 
-// ── API (localStorage-based) ──
+// ── API (server-first, localStorage fallback) ──
 async function api(url, opts) {
+  try {
+    const res = await fetch(url, {
+      method: (opts && opts.method) || 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: opts && opts.body
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return await res.json();
+  } catch {
+    return apiLocal(url, opts);
+  }
+}
+
+async function apiLocal(url, opts) {
   const method = (opts && opts.method) || 'GET';
 
   // GET /api/clients
@@ -200,8 +238,17 @@ async function api(url, opts) {
     return getPreviewData('clients') || [];
   }
 
+  // GET /api/clients/:id
+  let m = url.match(/^\/api\/clients\/([^/]+)$/);
+  if (m && method === 'GET') {
+    const list = getPreviewData('clients') || [];
+    const c = list.find(cl => cl.id === m[1]);
+    if (!c) throw new Error('Cliente no encontrado');
+    return c;
+  }
+
   // POST /api/clients/:id/verify-password
-  let m = url.match(/^\/api\/clients\/([^/]+)\/verify-password$/);
+  m = url.match(/^\/api\/clients\/([^/]+)\/verify-password$/);
   if (m && method === 'POST') {
     const { password } = JSON.parse(opts.body);
     const list = getPreviewData('clients') || [];
@@ -305,57 +352,45 @@ async function api(url, opts) {
 }
 
 // ── Login ──
-async function showLogin() {
+function showLogin() {
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('clientListSection').style.display = 'block';
+  document.getElementById('clientIdSection').style.display = 'block';
   document.getElementById('passwordSection').style.display = 'none';
   document.getElementById('blockedSection').style.display = 'none';
+  document.getElementById('clientIdInput').value = '';
   document.getElementById('passwordInput').value = '';
+  document.getElementById('clientIdError').classList.add('hidden');
   document.getElementById('passwordError').classList.add('hidden');
   pendingClientId = null;
-  const container = document.getElementById('clientList');
-  container.innerHTML = '<div class="loading"></div>';
-  document.getElementById('loginError').classList.add('hidden');
-  try {
-    const clients = await api('/api/clients');
-    if (clients.length === 0) {
-      container.innerHTML = '<p class="text-caption text-on-surface-variant text-center py-md">No hay clientes registrados. Crea uno desde el panel de administración.</p>';
-      return;
-    }
-    container.innerHTML = clients.map(c => `
-      <div onclick="selectClient('${c.id}')" class="flex items-center gap-sm bento-card rounded-lg px-sm py-xs cursor-pointer hover:border-primary-fixed transition-all">
-        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined text-on-surface-variant">person</span></div>
-        <div class="flex-1">
-          <div class="font-body-md text-on-surface">${c.name}</div>
-          <div class="text-caption text-on-surface-variant">${c.email || ''} ${c.streak ? '· Rach: '+c.streak+'d' : ''} ${c.pago_fin ? (c.pago_fin < new Date().toISOString().slice(0,10) ? '· Vencido' : '· Abono activo') : ''}</div>
-        </div>
-        <span class="material-symbols-outlined text-primary-fixed">arrow_forward_ios</span>
-      </div>
-    `).join('');
-  } catch (e) {
-    container.innerHTML = '';
-    document.getElementById('loginError').classList.remove('hidden');
-    document.getElementById('loginError').textContent = 'Error: ' + e.message;
-  }
+  setTimeout(() => document.getElementById('clientIdInput').focus(), 100);
 }
 
-function selectClient(id) {
-  pendingClientId = id;
-  document.getElementById('clientListSection').style.display = 'none';
+async function submitClientId() {
+  const raw = document.getElementById('clientIdInput').value.trim();
+  if (!raw) { document.getElementById('clientIdError').textContent = 'Ingresa tu número de teléfono'; document.getElementById('clientIdError').classList.remove('hidden'); return; }
+  // Normalize: remove non-digits
+  const digits = raw.replace(/\D/g, '');
+  if (digits.length < 7) { document.getElementById('clientIdError').textContent = 'Número inválido. Debe tener al menos 7 dígitos.'; document.getElementById('clientIdError').classList.remove('hidden'); return; }
+  // Search by phone (exact match on last 10 digits, or full match)
+  const clients = getPreviewData('clients') || [];
+  let found = clients.find(c => {
+    if (!c.phone) return false;
+    const cDigits = c.phone.replace(/\D/g, '');
+    return cDigits === digits || cDigits.endsWith(digits) || digits.endsWith(cDigits);
+  });
+  if (!found) {
+    document.getElementById('clientIdError').textContent = 'Número no encontrado. ¿Estás registrado en el gimnasio?';
+    document.getElementById('clientIdError').classList.remove('hidden');
+    return;
+  }
+  pendingClientId = found.id;
+  document.getElementById('clientIdSection').style.display = 'none';
   document.getElementById('passwordSection').style.display = 'block';
-  document.getElementById('blockedSection').style.display = 'none';
+  document.getElementById('clientNameDisplay').textContent = found.name;
   document.getElementById('passwordInput').value = '';
   document.getElementById('passwordError').classList.add('hidden');
-  document.getElementById('passwordInput').focus();
-  // Get client name from the list
-  const cards = document.querySelectorAll('#clientList .bento-card');
-  for (const card of cards) {
-    if (card.getAttribute('onclick') && card.getAttribute('onclick').includes("'" + id + "'")) {
-      const nameEl = card.querySelector('.font-body-md');
-      if (nameEl) { document.getElementById('passwordClientName').textContent = nameEl.textContent; break; }
-    }
-  }
+  setTimeout(() => document.getElementById('passwordInput').focus(), 100);
 }
 
 async function submitPassword() {
@@ -384,10 +419,11 @@ async function submitPassword() {
 
 function cancelPassword() {
   document.getElementById('passwordSection').style.display = 'none';
-  document.getElementById('clientListSection').style.display = 'block';
+  document.getElementById('clientIdSection').style.display = 'block';
   document.getElementById('passwordInput').value = '';
   document.getElementById('passwordError').classList.add('hidden');
   pendingClientId = null;
+  setTimeout(() => document.getElementById('clientIdInput').focus(), 100);
 }
 
 function isSubExpired(client) {
@@ -406,10 +442,11 @@ function showBlocked(client) {
 
 function backToLogin() {
   document.getElementById('blockedSection').style.display = 'none';
-  document.getElementById('clientListSection').style.display = 'block';
+  document.getElementById('clientIdSection').style.display = 'block';
   document.getElementById('passwordInput').value = '';
   document.getElementById('passwordError').classList.add('hidden');
   pendingClientId = null;
+  setTimeout(() => document.getElementById('clientIdInput').focus(), 100);
 }
 
 // ── Init App ──
@@ -495,13 +532,7 @@ async function renderInicio(container) {
           <p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest mb-base">Bienvenido de nuevo</p>
           <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-extrabold">${c.name}</h2>
         </div>
-        <div class="flex flex-col items-end">
-          <div class="flex items-center gap-xs bg-surface-container-highest px-sm py-xs rounded-full border border-outline-variant">
-            <span class="material-symbols-outlined text-secondary fill" style="font-variation-settings:'FILL' 1">local_fire_department</span>
-            <span class="font-headline-md text-headline-md text-secondary tracking-tighter">${c.streak || 0}</span>
-          </div>
-          <p class="font-caption text-caption text-on-surface-variant mt-base">D&iacute;as de racha</p>
-        </div>
+
       </section>
 
       <!-- Hero / Next Workout -->
@@ -865,10 +896,7 @@ function renderPerfil(container) {
           <span class="text-body-md text-on-surface">Tel&eacute;fono</span>
           <span class="text-caption text-on-surface-variant">${c.phone || 'No registrado'}</span>
         </div>
-        <div class="flex justify-between items-center py-xs border-t border-outline-variant/30">
-          <span class="text-body-md text-on-surface">Racha</span>
-          <span class="text-caption text-primary-fixed font-bold">${c.streak || 0} d&iacute;as</span>
-        </div>
+
         ${c.pago_inicio || c.pago_fin ? (() => {
           const hoy = new Date();
           const hoyStr = hoy.toISOString().slice(0, 10);

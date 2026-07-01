@@ -1,30 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="80" fill="#a855f7"/>
-  <!-- sun -->
-  <circle cx="400" cy="120" r="36" fill="#facc15"/>
-  <circle cx="400" cy="120" r="44" fill="none" stroke="#facc15" stroke-width="4" opacity="0.4"/>
-  <!-- ground wave -->
-  <path d="M60 420 Q160 390 256 420 Q352 450 452 420 L452 512 L60 512 Z" fill="#7c3aed" opacity="0.3"/>
-  <!-- trunk -->
-  <path d="M230 440 Q260 340 290 240 Q310 180 330 140" fill="none" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
-  <path d="M240 440 Q268 340 296 240 Q314 180 332 140" fill="none" stroke="#e4e2e1" stroke-width="6" stroke-linecap="round" opacity="0.3"/>
-  <!-- coconuts -->
-  <circle cx="326" cy="158" r="12" fill="#78350f"/>
-  <circle cx="340" cy="168" r="10" fill="#78350f"/>
-  <circle cx="312" cy="168" r="9" fill="#78350f"/>
-  <!-- frond 1 - left -->
-  <path d="M326 148 Q240 100 160 130 Q200 140 240 150 Q280 155 326 148" fill="#22c55e"/>
-  <path d="M326 148 Q240 100 160 130" fill="none" stroke="#16a34a" stroke-width="3"/>
-  <!-- frond 2 - right -->
-  <path d="M340 152 Q420 80 480 100 Q430 120 390 140 Q360 150 340 152" fill="#f97316"/>
-  <path d="M340 152 Q420 80 480 100" fill="none" stroke="#ea580c" stroke-width="3"/>
-  <!-- frond 3 - up-center -->
-  <path d="M330 144 Q340 60 360 20 Q320 60 310 110 Q308 134 330 144" fill="#22c55e"/>
-  <path d="M330 144 Q340 60 360 20" fill="none" stroke="#16a34a" stroke-width="3"/>
-  <!-- frond 4 - left-down -->
-  <path d="M316 152 Q220 180 140 220 Q200 200 260 178 Q296 166 316 152" fill="#22c55e"/>
-  <path d="M316 152 Q220 180 140 220" fill="none" stroke="#16a34a" stroke-width="3"/>
-  <!-- frond 5 - up-left -->
-  <path d="M320 146 Q260 60 220 10 Q250 70 290 110 Q306 132 320 146" fill="#f97316"/>
-  <path d="M320 146 Q260 60 220 10" fill="none" stroke="#ea580c" stroke-width="3"/>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#000000"/>
+  <image href="../logo.png" x="0" y="56" width="512" height="304" preserveAspectRatio="xMidYMid meet"/>
+  <rect width="512" height="512" rx="80" fill="none"/>
 </svg>

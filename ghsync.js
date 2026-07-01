@@ -8,7 +8,7 @@ function getConfig() {
   try {
     return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
   } catch {
-    return { token: '', repo: 'palmerasgymapp-png/Palmeras-App', enabled: false };
+    return { token: process.env.GH_TOKEN || '', repo: 'palmerasgymapp-png/Palmeras-App', enabled: !!process.env.GH_TOKEN };
   }
 }
 
@@ -22,8 +22,9 @@ function getRemoteWithToken(token) {
   return `https://palmerasgymapp-png:${token}@github.com/palmerasgymapp-png/Palmeras-App.git`;
 }
 
-function syncBackup(backupName, callback) {
+function syncBackup(backupName, dataJson, callback) {
   const cfg = getConfig();
+  if (typeof dataJson === 'function') { callback = dataJson; dataJson = null; }
   if (!cfg.enabled || !cfg.token) {
     if (callback) callback(null, 'GitHub sync disabled');
     return;
@@ -33,9 +34,14 @@ function syncBackup(backupName, callback) {
     if (callback) callback(new Error('Backup file not found'));
     return;
   }
+  const dataDir = path.join(__dirname, 'data');
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  const dataJsonPath = path.join(dataDir, 'data.json');
+  if (dataJson) fs.writeFileSync(dataJsonPath, dataJson, 'utf8');
   const remote = getRemoteWithToken(cfg.token);
   const cmds = [
     `git add -f "${backupPath}"`,
+    `git add -f "${dataJsonPath}"`,
     `git commit -m "Respaldo automatico ${backupName}"`,
     `git push "${remote}" master`
   ];

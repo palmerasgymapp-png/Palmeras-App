@@ -67,13 +67,17 @@ function createTables() {
       email TEXT DEFAULT '',
       phone TEXT DEFAULT '',
       notes TEXT DEFAULT '',
-      streak INTEGER DEFAULT 0,
+      password TEXT DEFAULT '',
+      fecha_nacimiento TEXT DEFAULT '',
       pago_inicio TEXT DEFAULT '',
       pago_fin TEXT DEFAULT '',
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )
   `);
+  try { db.run('ALTER TABLE clients ADD COLUMN password TEXT DEFAULT ""'); } catch (e) {}
+  try { db.run('ALTER TABLE clients ADD COLUMN fecha_nacimiento TEXT DEFAULT ""'); } catch (e) {}
+  try { db.run('ALTER TABLE clients DROP COLUMN streak'); } catch (e) {}
   db.run(`
     CREATE TABLE IF NOT EXISTS client_routines (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -382,8 +386,8 @@ function createClient(data) {
   const now = new Date().toISOString();
   const password = data.password || generatePassword();
   db.run(
-    'INSERT INTO clients (id, name, email, phone, notes, streak, pago_inicio, pago_fin, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [data.id, data.name, data.email || '', data.phone || '', data.notes || '', data.streak || 0, data.pago_inicio || '', data.pago_fin || '', password, now, now]
+    'INSERT INTO clients (id, name, email, phone, notes, password, fecha_nacimiento, pago_inicio, pago_fin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [data.id, data.name, data.email || '', data.phone || '', data.notes || '', password, data.fecha_nacimiento || '', data.pago_inicio || '', data.pago_fin || '', now, now]
   );
   save();
   return getClient(data.id);
@@ -394,16 +398,16 @@ function updateClient(id, data) {
   const existing = getClient(id);
   if (!existing) return null;
   db.run(
-    'UPDATE clients SET name=?, email=?, phone=?, notes=?, streak=?, pago_inicio=?, pago_fin=?, password=?, updated_at=? WHERE id=?',
+    'UPDATE clients SET name=?, email=?, phone=?, notes=?, password=?, fecha_nacimiento=?, pago_inicio=?, pago_fin=?, updated_at=? WHERE id=?',
     [
       data.name ?? existing.name,
       data.email ?? existing.email,
       data.phone ?? existing.phone,
       data.notes ?? existing.notes,
-      data.streak ?? existing.streak ?? 0,
+      data.password ?? existing.password ?? '',
+      data.fecha_nacimiento ?? existing.fecha_nacimiento ?? '',
       data.pago_inicio ?? existing.pago_inicio ?? '',
       data.pago_fin ?? existing.pago_fin ?? '',
-      data.password ?? existing.password ?? '',
       now,
       id
     ]
@@ -509,6 +513,20 @@ function getActiveWorkout(clientId) {
   return result;
 }
 
+// ── Workout Logs (all) ──
+function allWorkoutLogs() {
+  const stmt = db.prepare('SELECT * FROM workout_logs ORDER BY started_at DESC');
+  const rows = [];
+  while (stmt.step()) {
+    const r = stmt.getAsObject();
+    const rt = getRoutine(r.routine_id);
+    r.routine_name = rt ? rt.name : 'Desconocida';
+    rows.push(r);
+  }
+  stmt.free();
+  return rows;
+}
+
 function getClientRoutinesWithDetail(clientId) {
   const routineIds = getClientRoutines(clientId);
   return routineIds.map(id => getRoutine(id)).filter(Boolean);
@@ -582,6 +600,32 @@ function removeWeeklyScheduleDay(clientId, dayOfWeek) {
   save();
 }
 
+// ── Weekly Schedule (all) ──
+function allWeeklyScheduleAll() {
+  const stmt = db.prepare(`
+    SELECT ws.*, r.name as routine_name, r.category as routine_category
+    FROM weekly_schedule ws
+    LEFT JOIN routines r ON ws.routine_id = r.id
+    ORDER BY ws.client_id, ws.day_of_week
+  `);
+  const rows = [];
+  while (stmt.step()) rows.push(stmt.getAsObject());
+  stmt.free();
+  return rows;
+}
+
+// ── Export All (for GitHub Pages sync) ──
+function exportAll() {
+  return {
+    exercises: allExercises(),
+    routines: allRoutines(),
+    clients: allClients(),
+    workout_logs: allWorkoutLogs(),
+    weekly_schedules: allWeeklyScheduleAll(),
+    exported_at: new Date().toISOString()
+  };
+}
+
 // ── Seed ──
 function count(table) {
   const stmt = db.prepare(`SELECT COUNT(*) as cnt FROM ${table}`);
@@ -621,11 +665,11 @@ function seed() {
   reIns.free();
 
   const clients = [
-    { id: 'cl1', name: 'María García', email: 'maria@email.com', phone: '+52 555 111 2233', notes: 'Objetivo: pérdida de peso y tonificación.', streak: 12, password: 'maria2026', created_at: '2026-05-20T09:00:00Z', updated_at: '2026-05-20T09:00:00Z' },
-    { id: 'cl2', name: 'Carlos López', email: 'carlos@email.com', phone: '+52 555 444 5566', notes: 'Enfocado en rendimiento deportivo.', streak: 5, password: 'carlos01', created_at: '2026-05-25T10:00:00Z', updated_at: '2026-05-25T10:00:00Z' }
+    { id: 'cl1', name: 'María García', email: 'maria@email.com', phone: '+52 555 111 2233', notes: 'Objetivo: pérdida de peso y tonificación.', password: 'maria2026', fecha_nacimiento: '1990-05-15', created_at: '2026-05-20T09:00:00Z', updated_at: '2026-05-20T09:00:00Z' },
+    { id: 'cl2', name: 'Carlos López', email: 'carlos@email.com', phone: '+52 555 444 5566', notes: 'Enfocado en rendimiento deportivo.', password: 'carlos01', fecha_nacimiento: '1988-11-20', created_at: '2026-05-25T10:00:00Z', updated_at: '2026-05-25T10:00:00Z' }
   ];
-  const cIns = db.prepare('INSERT INTO clients (id, name, email, phone, notes, streak, pago_inicio, pago_fin, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-  clients.forEach(c => cIns.run([c.id, c.name, c.email, c.phone, c.notes, c.streak, c.pago_inicio || '', c.pago_fin || '', c.password || '', c.created_at, c.updated_at]));
+  const cIns = db.prepare('INSERT INTO clients (id, name, email, phone, notes, password, fecha_nacimiento, pago_inicio, pago_fin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+  clients.forEach(c => cIns.run([c.id, c.name, c.email, c.phone, c.notes, c.password || '', c.fecha_nacimiento || '', c.pago_inicio || '', c.pago_fin || '', c.created_at, c.updated_at]));
   cIns.free();
 
   const crIns = db.prepare('INSERT INTO client_routines (client_id, routine_id, assigned_at) VALUES (?, ?, ?)');
@@ -637,4 +681,4 @@ function seed() {
   console.log('Database seeded with sample data.');
 }
 
-module.exports = { init, save, exportBuffer, importBuffer, createBackup, listBackups, getDbInfo, getDbPath, getBackupDir, allExercises, getExercise, createExercise, updateExercise, deleteExercise, allRoutines, getRoutine, createRoutine, updateRoutine, deleteRoutine, allClients, getClient, createClient, updateClient, deleteClient, assignRoutine, unassignRoutine, seed, count, startWorkout, completeWorkout, getWorkoutHistory, getActiveWorkout, getClientRoutinesWithDetail, getWeeklyStats, getClientDashboard, getWeeklySchedule, setWeeklyScheduleDay, removeWeeklyScheduleDay, generatePassword, verifyPassword };
+module.exports = { init, save, exportBuffer, importBuffer, createBackup, listBackups, getDbInfo, getDbPath, getBackupDir, allExercises, allWorkoutLogs, allWeeklyScheduleAll, exportAll, getExercise, createExercise, updateExercise, deleteExercise, allRoutines, getRoutine, createRoutine, updateRoutine, deleteRoutine, allClients, getClient, createClient, updateClient, deleteClient, assignRoutine, unassignRoutine, seed, count, startWorkout, completeWorkout, getWorkoutHistory, getActiveWorkout, getClientRoutinesWithDetail, getWeeklyStats, getClientDashboard, getWeeklySchedule, setWeeklyScheduleDay, removeWeeklyScheduleDay, generatePassword, verifyPassword };

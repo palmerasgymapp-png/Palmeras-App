@@ -3,12 +3,14 @@ const PRECACHE = [
   'movil.html',
   'manifest.json',
   'icons/icon.svg',
-  'icons/png/android-chrome-192x192.png',
-  'icons/png/android-chrome-512x512.png',
-  'icons/png/apple-touch-icon-120x120.png',
-  'icons/png/apple-touch-icon-152x152.png',
-  'icons/png/apple-touch-icon-167x167.png',
-  'icons/png/apple-touch-icon-180x180.png'
+  'icons/android-chrome-192x192.png',
+  'icons/android-chrome-512x512.png',
+  'icons/apple-touch-icon-120x120.png',
+  'icons/apple-touch-icon-152x152.png',
+  'icons/apple-touch-icon-167x167.png',
+  'icons/apple-touch-icon-180x180.png',
+  'screenshots/login.png',
+  'screenshots/dashboard.png'
 ];
 
 self.addEventListener('install', (e) => {

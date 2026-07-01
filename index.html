@@ -595,10 +595,16 @@ document.addEventListener('click', function(e) {
   if (link && window.innerWidth < 768) closeSidebar();
 });
 
+let _autoSynced = false;
 async function serverFetch(url, opts) {
   const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
   if (!res.ok) { let msg; try { const e = await res.json(); msg = e.error; } catch { msg = res.statusText; } throw new Error(msg); }
-  return res.json();
+  const data = await res.json();
+  if (!_autoSynced && !isGitHubPages() && url !== '/api/backup/ghsync') {
+    _autoSynced = true;
+    setTimeout(() => syncBrowserToServer(), 100);
+  }
+  return data;
 }
 
 async function autoSync() {
@@ -609,6 +615,62 @@ async function autoSync() {
   } catch {
     // silent
   }
+}
+
+async function syncBrowserToServer() {
+  if (!serverOnline) { showToast('Servidor no disponible', 'wifi_off', 'text-error'); return; }
+  let newCount = 0, updCount = 0;
+
+  const syncType = async (type, serverPath) => {
+    const local = getPreviewData(type);
+    if (!local || local.length === 0) return;
+    try {
+      const server = await serverFetch(serverPath);
+      const serverMap = {}; server.forEach(r => { serverMap[r.id] = r });
+      for (const item of local) {
+        const existing = serverMap[item.id];
+        if (!existing) {
+          await serverFetch(serverPath, { method: 'POST', body: JSON.stringify(item) });
+          newCount++;
+        } else if (item.updated_at && existing.updated_at && new Date(item.updated_at) > new Date(existing.updated_at)) {
+          await serverFetch(serverPath + '/' + item.id, { method: 'PUT', body: JSON.stringify(item) });
+          updCount++;
+        }
+      }
+    } catch (e) { console.warn('Sync ' + type + ' failed:', e.message); }
+  };
+
+  await syncType('exercises', '/api/exercises');
+  await syncType('routines', '/api/routines');
+  await syncType('clients', '/api/clients');
+
+  // Sync weekly schedules per client
+  const localWeekly = getPreviewData('weekly');
+  if (localWeekly && typeof localWeekly === 'object') {
+    try {
+      for (const [clientId, entries] of Object.entries(localWeekly)) {
+        if (!Array.isArray(entries)) continue;
+        const serverSched = await serverFetch(`/api/clients/${clientId}/weekly-schedule`);
+        const serverDays = new Set(serverSched.map(s => s.day_of_week));
+        for (const entry of entries) {
+          if (!serverDays.has(entry.day_of_week)) {
+            await serverFetch(`/api/clients/${clientId}/weekly-schedule`, {
+              method: 'POST', body: JSON.stringify({ dayOfWeek: entry.day_of_week, routineId: entry.routine_id })
+            });
+            newCount++;
+          }
+        }
+      }
+    } catch (e) { console.warn('Sync weekly failed:', e.message); }
+  }
+
+  if (newCount > 0 || updCount > 0) {
+    showToast(`${newCount} nuevo${newCount!==1?'s':''}, ${updCount} actualizado${updCount!==1?'':'s'} sincronizados del navegador al servidor`, 'sync', 'text-success');
+    autoSync();
+  } else {
+    showToast('No hay datos nuevos del navegador', 'sync_disabled', 'text-on-surface-variant');
+  }
+  return { newCount, updCount };
 }
 
 // ── Keyboard shortcuts ──
@@ -1695,6 +1757,19 @@ async function renderSettings() {
       </label>
     </div>
   </div>
+
+  ${!isGitHubPages() ? `
+  <!-- Browser to Server Sync -->
+  <div class="tonal-elevation-1 rounded-xl p-md">
+    <h3 class="font-headline-md text-[18px] text-on-surface mb-sm flex items-center gap-xs">
+      <span class="material-symbols-outlined text-primary-fixed">sync</span> Sincronizaci&oacute;n del Navegador
+    </h3>
+    <p class="text-caption text-on-surface-variant mb-md">Sube al servidor los datos que hayas creado o editado desde el dominio (se guardan en el navegador).</p>
+    <button onclick="syncBrowserToServer()" class="bg-primary-fixed text-on-primary-fixed px-md py-sm rounded-lg font-bold text-label-md flex items-center gap-xs primary-glow hover:brightness-110 transition-all">
+      <span class="material-symbols-outlined">publish</span> Subir datos del navegador al servidor
+    </button>
+  </div>
+  ` : ''}
 
   <!-- GitHub Sync -->
   <div class="tonal-elevation-1 rounded-xl p-md">
